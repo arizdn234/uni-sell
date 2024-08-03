@@ -103,3 +103,37 @@ Docker is employed to containerize each service, providing a consistent environm
 - **Database:** MySQL is used as the database for storing and retrieving product, user, and transaction data efficiently.
 
 This document serves as a reference for the architecture and features of the e-commerce platform, ensuring a coherent understanding among development teams and stakeholders.
+
+---
+# Docker and Artisan Usage Documentation
+
+## Docker Commands
+
+| **Command**                              | **Description**                                                |
+|------------------------------------------|----------------------------------------------------------------|
+| `./vendor/bin/sail up`                   | Start all containers defined in the `docker-compose.yml` file. |
+| `./vendor/bin/sail up -d`                | Start containers in detached mode (background).                |
+| `./vendor/bin/sail down`                 | Stop and remove containers, networks, and volumes.             |
+| `./vendor/bin/sail down -v`              | Stop and remove containers and volumes.                        |
+| `./vendor/bin/sail ps`                   | List currently running containers.                             |
+| `./vendor/bin/sail stop <container_name>`| Stop a specific container.                                    |
+| `./vendor/bin/sail start <container_name>`| Start a stopped container.                                    |
+| `./vendor/bin/sail shell`                | Access the shell of the application container.                 |
+| `./vendor/bin/sail exec mysql bash`      | Access the shell of the MySQL container.                       |
+
+## Artisan Commands
+
+| **Command**                               | **Description**                                                      |
+|-------------------------------------------|----------------------------------------------------------------------|
+| `./vendor/bin/sail artisan migrate`       | Run database migrations that have not yet been applied.              |
+| `./vendor/bin/sail artisan migrate:rollback` | Roll back the last batch of migrations.                           |
+| `./vendor/bin/sail artisan db:seed`        | Seed the database with data from seeders.                            |
+| `./vendor/bin/sail artisan migrate --seed`| Run migrations and seed the database in one command.                 |
+| `./vendor/bin/sail artisan make:model ModelName` | Create a new Eloquent model.                                     |
+| `./vendor/bin/sail artisan make:controller ControllerName` | Create a new controller.                                       |
+| `./vendor/bin/sail artisan make:resource ResourceName` | Create a new API resource.                                      |
+| `./vendor/bin/sail artisan config:cache`  | Cache the configuration files for faster performance.               |
+| `./vendor/bin/sail artisan cache:clear`   | Clear all application cache.                                        |
+| `./vendor/bin/sail artisan test`          | Run the application’s unit and feature tests.                        |
+
+This documentation provides a summary of essential commands for managing Docker containers and performing tasks with Artisan in Laravel project.
