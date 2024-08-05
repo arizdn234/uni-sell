@@ -39,6 +39,10 @@
                 </a>
             @endif
 
+            <a href="{{ route('register') }}" class="inline-flex items-center ml-2 px-4 py-2 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest transition ease-in-out duration-150 bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                {{ __('Register') }}
+            </a>         
+
             <x-primary-button class="ms-3">
                 {{ __('Log in') }}
             </x-primary-button>
