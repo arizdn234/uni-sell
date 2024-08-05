@@ -15,7 +15,13 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with('category', 'reviews')->get();
-        return response()->json($products);
+        // return response()->json($products); // as json kalo API sih
+
+        if (auth()->user() && auth()->user()->is_admin) {
+            return view('admin.products.index', ['products' => $products]);
+        }
+
+        return view('user.products.index', ['products' => $products]);
     }
 
     /**
