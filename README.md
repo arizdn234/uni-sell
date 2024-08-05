@@ -134,6 +134,7 @@ This document serves as a reference for the architecture and features of the e-c
 | `./vendor/bin/sail artisan make:resource ResourceName` | Create a new API resource.                                      |
 | `./vendor/bin/sail artisan config:cache`  | Cache the configuration files for faster performance.               |
 | `./vendor/bin/sail artisan cache:clear`   | Clear all application cache.                                        |
+| `./vendor/bin/sail artisan migrate:fresh --seed`   | Drops all tables, recreates them using migrations, and seeds the database with initial data.                                        |
 | `./vendor/bin/sail artisan test`          | Run the application’s unit and feature tests.                        |
 
 This documentation provides a summary of essential commands for managing Docker containers and performing tasks with Artisan in Laravel project.

@@ -136,6 +136,7 @@ Dokumen ini berfungsi sebagai referensi untuk arsitektur dan fitur platform e-co
 | `./vendor/bin/sail artisan make:resource NamaResource` | Membuat resource API baru.                                       |
 | `./vendor/bin/sail artisan config:cache`   | Mencache file konfigurasi untuk kinerja yang lebih cepat.             |
 | `./vendor/bin/sail artisan cache:clear`    | Menghapus semua cache aplikasi.                                    |
+| `./vendor/bin/sail artisan migrate:fresh --seed`   | Menghapus semua tabel, membuatnya kembali menggunakan migrations, dan seeding database dengan data awal.                                        |
 | `./vendor/bin/sail artisan test`           | Menjalankan pengujian unit dan fitur aplikasi.                       |
 
 Dokumentasi
