@@ -23,7 +23,7 @@ class ProductsTableSeeder extends Seeder
         }
 
         // Create 50 products
-        Product::factory()->count(50)->create();
+        Product::factory()->count(167)->create();
 
         // Alternatively, create specific products manually:
         // foreach ($categories as $category) {

@@ -16,7 +16,7 @@ class ReviewsTableSeeder extends Seeder
         $products = Product::all();
 
         foreach ($products as $product) {
-            for ($i = 0; $i < 5; $i++) {
+            for ($i = 0; $i < rand(7, 23); $i++) {
                 Review::create([
                     'product_id' => $product->id,
                     'user_id' => User::inRandomOrder()->first()->id,

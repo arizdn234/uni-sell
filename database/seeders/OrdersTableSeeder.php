@@ -17,7 +17,7 @@ class OrdersTableSeeder extends Seeder
         $users = User::all();
 
         foreach ($users as $user) {
-            for ($i = 0; $i < 5; $i++) {
+            for ($i = 0; $i < rand(47, 138); $i++) {
                 $order = Order::create([
                     'user_id' => $user->id,
                     'total_amount' => 0,
@@ -38,10 +38,10 @@ class OrdersTableSeeder extends Seeder
                         'price' => $product->price,
                     ]);
 
-                    $totalAmount += $product->price * $quantity;
+                    $totalAmount += floatval($product->price) * $quantity;
                 }
 
-                $order->update(['total_amount' => $totalAmount]);
+                $order->update(['total_amount' => number_format($totalAmount, 2)]);
             }
         }
     }
