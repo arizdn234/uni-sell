@@ -10,17 +10,16 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Route::get('/admin-dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard')->middleware(CheckAdmin::class);
-// Route::get('/admin-dashboard/products', [ProductController::class, 'index'])->name('admin.product')->middleware(CheckAdmin::class);
-
-// Grouping admin routes with middleware
 Route::middleware(['auth', 'verified', CheckAdmin::class])->group(function () {
-    Route::get('/admin-dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-    
-    // Additional admin routes
-    Route::prefix('admin-dashboard')->group(function () {
-        Route::get('/products', [ProductController::class, 'index'])->name('admin.product');
-        // You can add more routes here for CRUD operations or other admin functionalities
+    Route::prefix('admin')->group(function () {
+
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+        
+        Route::get('/products', [ProductController::class, 'index'])->name('admin.products.index');
+        Route::get('/products/{product}', [ProductController::class, 'show'])->name('admin.products.show');
+        Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
+        Route::put('/products/{product}', [ProductController::class, 'update'])->name('admin.products.update');
+        Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
     });
 });
 
