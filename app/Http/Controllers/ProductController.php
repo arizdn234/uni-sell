@@ -14,10 +14,15 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('category', 'reviews')->get();
-        // return response()->json($products); // as json kalo API sih
+        // $products = Product::with('category', 'reviews')->get();
+        // Get paginated products with 10 items per page
+        $products = Product::with('category', 'reviews')->paginate(10);
 
-        if (auth()->user() && auth()->user()->is_admin) {
+        if (request()->expectsJson()) {
+            return response()->json($products);
+        }
+
+        if (auth()->user()->is_admin) {
             return view('admin.products.index', ['products' => $products]);
         }
 
@@ -43,7 +48,11 @@ class ProductController extends Controller
 
         $product = Product::create($validatedData);
 
-        return response()->json($product, 201);
+        if ($request->expectsJson()) {
+            return response()->json($product, 201);
+        }
+
+        return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
     }
 
     /**
@@ -55,7 +64,23 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         $product->load('category', 'reviews');
-        return response()->json($product);
+
+        if (request()->expectsJson()) {
+            return response()->json($product);
+        }
+
+        return view('admin.products.show', ['product' => $product]);
+    }
+
+    /**
+     * Show the form for editing the specified product.
+     *
+     * @param  \App\Models\Product  $product
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Product $product)
+    {
+        return view('admin.products.edit', ['product' => $product]);
     }
 
     /**
@@ -78,7 +103,11 @@ class ProductController extends Controller
 
         $product->update($validatedData);
 
-        return response()->json($product);
+        if ($request->expectsJson()) {
+            return response()->json($product);
+        }
+
+        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }
 
     /**
@@ -91,6 +120,10 @@ class ProductController extends Controller
     {
         $product->delete();
 
-        return response()->json(['message' => 'Product deleted successfully']);
+        if (request()->expectsJson()) {
+            return response()->json(['message' => 'Product deleted successfully']);
+        }
+
+        return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
     }
 }
