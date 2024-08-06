@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ProductsExport;
 
 class ProductController extends Controller
 {
@@ -12,22 +15,67 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        // $products = Product::with('category', 'reviews')->get();
-        // Get paginated products with 10 items per page
-        $products = Product::with('category', 'reviews')->paginate(10);
+        // Retrieve search and sort parameters from the request
+        $search = $request->input('search');
+        $sort = $request->input('sort');
+
+        // Query the products with search and sorting
+        $query = Product::query();
+
+        // Apply search if present
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        // Apply sorting if present
+        if ($sort != '') {
+            switch ($sort) {
+                case 'name_asc':
+                    $query->orderBy('name', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('name', 'desc');
+                    break;
+                case 'price_asc':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('price', 'desc');
+                    break;
+                default:
+                    // Default sorting can be applied here, e.g., by created_at
+                    $query->orderBy('created_at', 'desc');
+                    break;
+            }
+        } else {
+            // Default sorting if no sort is applied
+            $query->orderBy('created_at', 'desc');
+        }
+
+        // Paginate the results
+        $products = $query->paginate(10);
 
         if (request()->expectsJson()) {
             return response()->json($products);
         }
 
         if (auth()->user()->is_admin) {
-            return view('admin.products.index', ['products' => $products]);
+            return view('admin.products.index', [
+                'products' => $products,
+                'search' => $search,
+                'sort' => $sort,
+            ]);
         }
 
         return view('user.products.index', ['products' => $products]);
     }
+    
+    // public function export()
+    // {
+    //     return Excel::download(new ProductsExport, 'products_' . now()->format('Ymd') . '.xlsx');
+    // }
 
     /**
      * Store a newly created product in storage.
@@ -55,6 +103,12 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
     }
 
+    public function create()
+    {
+        $categories = Category::all();
+        return view('admin.products.create', compact('categories'));
+    }
+
     /**
      * Display the specified product.
      *
@@ -80,7 +134,8 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        return view('admin.products.edit', ['product' => $product]);
+        $categories = Category::all();
+        return view('admin.products.edit', compact('product', 'categories'));
     }
 
     /**
