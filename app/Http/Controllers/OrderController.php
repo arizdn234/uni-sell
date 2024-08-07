@@ -18,8 +18,10 @@ class OrderController extends Controller
 
         // Searching functionality
         if ($search = $request->get('search')) {
-            $query->where('order_number', 'like', "%{$search}%")
-                ->orWhere('customer_name', 'like', "%{$search}%");
+            $query->where('id', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($query) use ($search) {
+                      $query->where('name', 'like', "%{$search}%");
+                  });
         }
 
         // Sorting functionality
@@ -71,32 +73,50 @@ class OrderController extends Controller
      * @param  \App\Models\Order  $order
      * @return \Illuminate\Http\Response
      */
-    public function show(Order $order)
+    public function show($id)
     {
-        $order->load('user', 'items.product', 'payment', 'shipping');
-        return response()->json($order);
+        $order = Order::query()->with('user')->findOrFail($id);
+        
+        return view('admin.orders.show', compact('order'));
+    }
+
+    /**
+     * Show the form for editing the specified order.
+     *
+     * @param  int  $id
+     * @return \Illuminate\View\View
+     */
+    public function edit($id)
+    {
+        $order = Order::findOrFail($id);
+
+        return view('admin.orders.edit', compact('order'));
     }
 
     /**
      * Update the specified order in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Order  $order
-     * @return \Illuminate\Http\Response
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, Order $order)
+    public function update(Request $request, $id)
     {
-        $validatedData = $request->validate([
-            'user_id' => 'exists:users,id',
-            'total_amount' => 'numeric|min:0',
-            'status' => 'string',
-            'payment_method' => 'string',
-            'shipping_address' => 'string',
+        $request->validate([
+            'payment_method' => 'required|string|max:255',
+            'shipping_address' => 'required|string',
+            'status' => 'required|in:pending,processing,completed,cancelled',
         ]);
 
-        $order->update($validatedData);
+        $order = Order::findOrFail($id);
 
-        return response()->json($order);
+        $order->update([
+            'payment_method' => $request->input('payment_method'),
+            'shipping_address' => $request->input('shipping_address'),
+            'status' => $request->input('status'),
+        ]);
+
+        return redirect()->route('orders.index')->with('success', 'Order updated successfully.');
     }
 
     /**
@@ -109,6 +129,10 @@ class OrderController extends Controller
     {
         $order->delete();
 
-        return response()->json(['message' => 'Order deleted successfully']);
+        if (request()->expectsJson()) {
+            return response()->json(['message' => 'Order deleted successfully']);
+        }
+
+        return redirect()->route('orders.index')->with('success', 'Order deleted successfully.');
     }
 }
