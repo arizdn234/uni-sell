@@ -18,6 +18,16 @@
                 </button>
             </form>
 
+            <a href="{{ route('products.index') }}" class="bg-teal-700 hover:bg-teal-800 text-white font-bold py-2 px-4 rounded">
+                Show All
+            </a>
+        </div>
+
+        <div class="flex space-x-4">
+            <a href="{{ route('products.create') }}" class="bg-teal-700 hover:bg-teal-900 text-white font-bold py-2 px-4 rounded">
+                Add New Product
+            </a>
+            
             <!-- Sorting Dropdown -->
             <form method="GET" action="{{ route('products.index') }}" class="flex items-center">
                 <select name="sort" onchange="this.form.submit()"
@@ -29,18 +39,6 @@
                     <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
                 </select>
             </form>
-        </div>
-
-        <div class="flex space-x-4">
-            <a href="{{ route('products.create') }}" class="bg-teal-700 hover:bg-teal-900 text-white font-bold py-2 px-4 rounded">
-                Add New Product
-            </a>
-            <a href="{{ route('products.index') }}" class="bg-teal-700 hover:bg-teal-800 text-white font-bold py-2 px-4 rounded">
-                Show All
-            </a>
-            <a class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2 px-4 rounded">
-                Export to XLSX
-            </a>
         </div>
     </div>
 

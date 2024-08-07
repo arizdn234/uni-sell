@@ -49,7 +49,7 @@
                     </div>
                 </div>
                 <div class="mt-6">
-                    <a href="{{ route('admin.products.index') }}" class="bg-teal-600 hover:bg-teal-800 text-white font-bold py-2 px-4 rounded">Back to Products</a>
+                    <a href="{{ route('products.index') }}" class="bg-teal-600 hover:bg-teal-800 text-white font-bold py-2 px-4 rounded">Back to Products</a>
                 </div>
             </div>
         </div>
