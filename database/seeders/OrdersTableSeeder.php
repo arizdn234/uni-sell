@@ -17,7 +17,7 @@ class OrdersTableSeeder extends Seeder
         $users = User::all();
 
         foreach ($users as $user) {
-            for ($i = 0; $i < rand(47, 138); $i++) {
+            for ($i = 0; $i < rand(7, 25); $i++) {
                 $order = Order::create([
                     'user_id' => $user->id,
                     'total_amount' => 0,
@@ -27,10 +27,10 @@ class OrdersTableSeeder extends Seeder
                 ]);
 
                 $totalAmount = 0;
-                $products = Product::inRandomOrder()->take(rand(1, 3))->get();
+                $products = Product::inRandomOrder()->take(rand(1, 4))->get();
 
                 foreach ($products as $product) {
-                    $quantity = rand(1, 5);
+                    $quantity = rand(1, 4);
                     OrderItem::create([
                         'order_id' => $order->id,
                         'product_id' => $product->id,

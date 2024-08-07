@@ -12,10 +12,36 @@ class OrderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $orders = Order::with('user', 'items.product', 'payment', 'shipping')->get();
-        return response()->json($orders);
+        $query = Order::query()->with('user');
+
+        // Searching functionality
+        if ($search = $request->get('search')) {
+            $query->where('order_number', 'like', "%{$search}%")
+                ->orWhere('customer_name', 'like', "%{$search}%");
+        }
+
+        // Sorting functionality
+        switch ($request->get('sort')) {
+            case 'date_asc':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'date_desc':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'total_asc':
+                $query->orderBy('total_amount', 'asc');
+                break;
+            case 'total_desc':
+                $query->orderBy('total_amount', 'desc');
+                break;
+        }
+
+        // Get the paginated orders
+        $orders = $query->paginate(10);
+
+        return view('admin.orders.index', compact('orders'));
     }
 
     /**
