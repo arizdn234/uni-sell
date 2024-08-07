@@ -10,7 +10,7 @@
     <div class="bg-gray-800 dark:bg-gray-900 overflow-hidden shadow-sm sm:rounded-lg">
         <div class="p-6 text-gray-100">
             <!-- Product Form -->
-            <form action="{{ route('admin.products.store') }}" method="POST">
+            <form action="{{ route('products.store') }}" method="POST">
                 @csrf
 
                 <div class="mb-4">
@@ -51,7 +51,7 @@
                 <button type="submit" class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">
                     Add Product
                 </button>
-                <a href="{{ route('admin.products.index') }}" class="ml-3 bg-gray-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Back to Products</a>
+                <a href="{{ route('products.index') }}" class="ml-3 bg-gray-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Back to Products</a>
             </form>
         </div>
     </div>

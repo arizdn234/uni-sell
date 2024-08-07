@@ -8,7 +8,7 @@
 
         <div class="mt-4 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 text-gray-900 dark:text-gray-100">
-                <form action="{{ route('admin.products.update', $product) }}" method="POST">
+                <form action="{{ route('products.update', $product) }}" method="POST">
                     @csrf
                     @method('PUT')
 
@@ -69,7 +69,7 @@
                         <button type="submit" class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded">
                             Save Changes
                         </button>
-                        <a href="{{ route('admin.products.index') }}" class="ml-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                        <a href="{{ route('products.index') }}" class="ml-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                             Cancel
                         </a>
                     </div>
