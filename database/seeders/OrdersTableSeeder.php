@@ -21,7 +21,7 @@ class OrdersTableSeeder extends Seeder
                 $order = Order::create([
                     'user_id' => $user->id,
                     'total_amount' => 0,
-                    'status' => $faker->randomElement(['pending', 'completed', 'canceled']),
+                    'status' => $faker->randomElement(['pending', 'completed', 'canceled', 'processing', 'bank_transfer', 'cash_on_delivery']),
                     'payment_method' => $faker->randomElement(['credit_card', 'paypal']),
                     'shipping_address' => $faker->address,
                 ]);
