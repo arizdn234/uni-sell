@@ -100,7 +100,7 @@ class ProductController extends Controller
             return response()->json($product, 201);
         }
 
-        return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
+        return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
 
     public function create()
@@ -162,7 +162,7 @@ class ProductController extends Controller
             return response()->json($product);
         }
 
-        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
+        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
 
     /**
@@ -179,6 +179,6 @@ class ProductController extends Controller
             return response()->json(['message' => 'Product deleted successfully']);
         }
 
-        return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
+        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
 }
