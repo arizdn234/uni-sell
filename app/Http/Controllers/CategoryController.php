@@ -12,10 +12,32 @@ class CategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::with('children')->get();
-        return response()->json($categories);
+        $query = Category::with('parent');
+
+        if ($search = $request->get('search')) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%");
+        }
+
+        if ($sort = $request->get('sort')) {
+            $sortOptions = [
+                'name_asc' => ['name', 'asc'],
+                'name_desc' => ['name', 'desc'],
+                'latest' => ['created_at', 'desc'],
+                'longest' => ['created_at', 'asc'],
+            ];
+
+            if (array_key_exists($sort, $sortOptions)) {
+                [$column, $direction] = $sortOptions[$sort];
+                $query->orderBy($column, $direction);
+            }
+        }
+
+        $categories = $query->paginate(10);
+
+        return view('admin.categories.index', compact('categories'));
     }
 
     /**
@@ -24,16 +46,22 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function create()
+    {
+        $categories = Category::all();
+        return view('admin.categories.create', compact('categories'));
+    }
+
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'parent_id' => 'nullable|exists:categories,id',
         ]);
 
-        $category = Category::create($validatedData);
+        Category::create($request->all());
 
-        return response()->json($category, 201);
+        return redirect()->route('categories.index')->with('success', 'Category added successfully.');
     }
 
     /**
@@ -42,10 +70,11 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function show(Category $category)
+    public function show($id)
     {
-        $category->load('children', 'products');
-        return response()->json($category);
+        $category = Category::with('parent', 'products')->findOrFail($id);
+
+        return view('admin.categories.show', compact('category'));
     }
 
     /**
@@ -55,17 +84,27 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Category $category)
+    public function update(Request $request, $id)
     {
-        $validatedData = $request->validate([
-            'name' => 'string|max:255',
+        $request->validate([
+            'name' => 'required|string|max:255',
             'parent_id' => 'nullable|exists:categories,id',
         ]);
 
-        $category->update($validatedData);
+        $category = Category::findOrFail($id);
+        $category->update($request->all());
 
-        return response()->json($category);
+        return redirect()->route('categories.index')->with('success', 'Category updated successfully.');
     }
+
+    public function edit($id)
+    {
+        $category = Category::findOrFail($id);
+        $categories = Category::where('id', '!=', $category->id)->get();
+
+        return view('admin.categories.edit', compact('category', 'categories'));
+    }
+
 
     /**
      * Remove the specified category from storage.
@@ -77,6 +116,10 @@ class CategoryController extends Controller
     {
         $category->delete();
 
-        return response()->json(['message' => 'Category deleted successfully']);
+        if (request()->expectsJson()) {
+            return response()->json(['message' => 'Category deleted successfully']);
+        }
+
+        return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');
     }
 }
