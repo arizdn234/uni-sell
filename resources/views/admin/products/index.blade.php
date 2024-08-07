@@ -10,7 +10,7 @@
     <div class="mb-4 flex justify-between items-center">
         <div class="flex space-x-4">
             <!-- Search Bar -->
-            <form method="GET" action="{{ route('admin.products.index') }}" class="flex items-center">
+            <form method="GET" action="{{ route('products.index') }}" class="flex items-center">
                 <input type="text" name="search" placeholder="Search Products" value="{{ request('search') }}"
                     class="px-4 py-2 rounded border-gray-600 bg-gray-800 text-white focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50">
                 <button type="submit" class="ml-2 bg-teal-700 hover:bg-teal-900 text-white font-bold py-2 px-4 rounded">
@@ -19,7 +19,7 @@
             </form>
 
             <!-- Sorting Dropdown -->
-            <form method="GET" action="{{ route('admin.products.index') }}" class="flex items-center">
+            <form method="GET" action="{{ route('products.index') }}" class="flex items-center">
                 <select name="sort" onchange="this.form.submit()"
                     class="px-4 py-2 rounded border-gray-600 bg-gray-800 text-white focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50">
                     <option value="">Sort By</option>
@@ -32,10 +32,10 @@
         </div>
 
         <div class="flex space-x-4">
-            <a href="{{ route('admin.products.create') }}" class="bg-teal-700 hover:bg-teal-900 text-white font-bold py-2 px-4 rounded">
+            <a href="{{ route('products.create') }}" class="bg-teal-700 hover:bg-teal-900 text-white font-bold py-2 px-4 rounded">
                 Add New Product
             </a>
-            <a href="{{ route('admin.products.index') }}" class="bg-teal-700 hover:bg-teal-800 text-white font-bold py-2 px-4 rounded">
+            <a href="{{ route('products.index') }}" class="bg-teal-700 hover:bg-teal-800 text-white font-bold py-2 px-4 rounded">
                 Show All
             </a>
             <a class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2 px-4 rounded">
@@ -66,13 +66,13 @@
                             <td class="px-6 py-4 whitespace-nowrap text-gray-300">{{ $product->stock }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-300">Rp. {{ number_format($product->price, 2) }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-300">
-                                <a href="{{ route('admin.products.show', $product->id) }}" class="text-teal-500 hover:text-teal-700">
+                                <a href="{{ route('products.show', $product->id) }}" class="text-teal-500 hover:text-teal-700">
                                     <i class="fa fa-eye"></i>
                                 </a>
-                                <a href="{{ route('admin.products.edit', $product->id) }}" class="ml-2 text-amber-500 hover:text-amber-700">
+                                <a href="{{ route('products.edit', $product->id) }}" class="ml-2 text-amber-500 hover:text-amber-700">
                                     <i class="fa fa-edit"></i>
                                 </a>
-                                <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="inline">
+                                <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="ml-2 text-rose-500 hover:text-rose-700" onclick="return confirm('Are you sure you want to delete this item?');">
