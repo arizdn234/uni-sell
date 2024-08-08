@@ -62,9 +62,14 @@
                             <td class="px-6 py-4 whitespace-nowrap text-gray-300">{{ $users->firstItem() + $index }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-300">{{ $user->name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-300">{{ $user->email }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-300">
+                            <td class="px-6 py-4 whitespace-nowrap
                                 @if($user->email_verified_at)
-                                    {{ $user->email_verified_at->diffForHumans() }}
+                                    text-green-500
+                                @else
+                                    text-red-500
+                                @endif">
+                                @if($user->email_verified_at)
+                                    Verified {{ $user->email_verified_at->diffForHumans() }}
                                 @else
                                     Not Verified
                                 @endif

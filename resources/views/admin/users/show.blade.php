@@ -24,8 +24,17 @@
                     </div>
                     <div class="p-4 bg-gray-700 rounded-lg shadow-md">
                         <h4 class="text-sm font-medium text-gray-300">Email Verified:</h4>
-                        <p class="text-gray-200">
-                            {{ $user->email_verified_at ? $user->email_verified_at->diffForHumans() : 'Not Verified' }}
+                        <p class="text-gray-200
+                            @if($user->email_verified_at)
+                                text-green-500
+                            @else
+                                text-red-500
+                            @endif">
+                            @if($user->email_verified_at)
+                                Verified {{ $user->email_verified_at->diffForHumans() }}
+                            @else
+                                Not Verified
+                            @endif
                         </p>
                     </div>
                     <div class="p-4 bg-gray-700 rounded-lg shadow-md">

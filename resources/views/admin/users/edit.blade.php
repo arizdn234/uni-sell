@@ -29,6 +29,36 @@
                     @enderror
                 </div>
 
+                <div class="mb-4">
+                    <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
+                    <input type="password" id="password" name="password" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-200 border border-gray-600 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm">
+                    <small class="text-gray-500">Leave blank to keep the current password</small>
+                    @error('password')
+                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label for="password_confirmation" class="block text-sm font-medium text-gray-300">Confirm Password</label>
+                    <input type="password" id="password_confirmation" name="password_confirmation" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-200 border border-gray-600 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm">
+                </div>
+
+                <div class="mb-4">
+                    <label for="email_verified_at" class="block text-sm font-medium text-gray-300">Email Verification</label>
+                    <div class="flex items-center">
+                        <input type="text" id="email_verified_at" name="email_verified_at" value="{{ old('email_verified_at', optional($user->email_verified_at)->format('Y-m-d H:i:s')) }}" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-200 border border-gray-600 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm" readonly>
+                        <button type="button" class="ml-2 bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded" onclick="verifyNow()">
+                            Verify Now!
+                        </button>
+                        <button type="button" class="ml-2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onclick="deleteVerification()">
+                            Delete Verification!
+                        </button>
+                    </div>
+                    @error('email_verified_at')
+                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+
                 <div class="flex justify-end">
                     <button type="submit" class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded">
                         Save Changes
@@ -40,4 +70,18 @@
             </form>
         </div>
     </div>
+
+    <script>
+        function verifyNow() {
+            if (confirm('Are you sure you want to mark this email as verified?')) {
+                document.getElementById('email_verified_at').value = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            }
+        }
+    
+        function deleteVerification() {
+            if (confirm('Are you sure you want to delete the email verification?')) {
+                document.getElementById('email_verified_at').value = ''; // Set to empty string
+            }
+        }
+    </script>
 @endsection

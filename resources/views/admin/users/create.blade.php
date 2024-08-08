@@ -37,23 +37,32 @@
                 </div>
 
                 <div class="mb-4">
+                    <label for="password_confirmation" class="block text-sm font-medium text-gray-300">Confirm Password</label>
+                    <input type="password" id="password_confirmation" name="password_confirmation" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-200 border border-gray-600 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm" required>
+                    @error('password_confirmation')
+                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="mb-4">
                     <label for="role" class="block text-sm font-medium text-gray-300">Role</label>
                     <select id="role" name="role" class="mt-1 block w-full px-3 py-2 bg-gray-700 text-gray-200 border border-gray-600 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm">
                         <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option>
-                        <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                     </select>
                     @error('role')
                         <span class="text-red-500 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
 
-                <div class="mb-4">
-                    <button type="submit" class="bg-teal-600 hover:bg-teal-800 text-white font-bold py-2 px-4 rounded">Create User</button>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded">
+                        Save Changes
+                    </button>
+                    <a href="{{ route('users.index') }}" class="ml-2 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                        Cancel
+                    </a>
                 </div>
             </form>
-            <div class="mt-4">
-                <a href="{{ route('users.index') }}" class="bg-teal-600 hover:bg-teal-800 text-white font-bold py-2 px-4 rounded">Back to Users</a>
-            </div>
         </div>
     </div>
 @endsection
