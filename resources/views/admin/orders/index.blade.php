@@ -62,7 +62,18 @@
                                 Rp. {{ number_format((float)str_replace(',', '', $order->total_amount), 2) }}
                             </td>                            
                             <td class="px-6 py-4 whitespace-nowrap text-gray-300">{{ $order->payment_method }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-300">{{ $order->status }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap
+                                @if($order->status === 'completed')
+                                    text-green-500
+                                @elseif($order->status === 'cancelled')
+                                    text-red-500
+                                @elseif($order->status === 'pending' || $order->status === 'processing')
+                                    text-amber-500
+                                @else
+                                    text-gray-300
+                                @endif">
+                                {{ ucfirst($order->status) }}
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-300">
                                 <a href="{{ route('orders.show', $order->id) }}" class="text-teal-500 hover:text-teal-700">
                                     <i class="fa fa-eye"></i>
