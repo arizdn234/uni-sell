@@ -12,10 +12,39 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
-        return response()->json($users);
+        $query = User::query()->where('is_admin', '!=', 1);
+        
+        // Searching functionality
+        if ($search = $request->get('search')) {
+            $query->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+        }
+
+        // Sorting functionality
+        if ($sort = $request->get('sort')) {
+            switch ($sort) {
+                case 'name_asc':
+                    $query->orderBy('name', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('name', 'desc');
+                    break;
+                case 'email_asc':
+                    $query->orderBy('email', 'asc');
+                    break;
+                case 'email_desc':
+                    $query->orderBy('email', 'desc');
+                    break;
+            }
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+        $users = $query->paginate(10);
+
+        return view('admin.users.index', compact('users'));
     }
 
     /**
@@ -24,20 +53,28 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function create()
+    {
+        return view('admin.users.create');
+    }
+
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:6',
-            'is_admin' => 'boolean',
+            'password' => 'required|min:6|confirmed',
+            // Add other validation rules as needed
         ]);
 
-        $validatedData['password'] = bcrypt($validatedData['password']);
+        User::create([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => bcrypt($request->input('password')),
+            // Set other attributes as needed
+        ]);
 
-        $user = User::create($validatedData);
-
-        return response()->json($user, 201);
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
     /**
@@ -48,7 +85,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return response()->json($user);
+        return view('admin.users.show', compact('user'));
     }
 
     /**
@@ -58,22 +95,29 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
+    public function edit(User $user)
+    {
+        return view('admin.users.edit', compact('user'));
+    }
+
+    // Update the specified user in storage.
     public function update(Request $request, User $user)
     {
-        $validatedData = $request->validate([
-            'name' => 'string|max:255',
-            'email' => 'email|unique:users,email,' . $user->id,
-            'password' => 'string|min:6',
-            'is_admin' => 'boolean',
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|min:6|confirmed',
+            // Add other validation rules as needed
         ]);
 
-        if (isset($validatedData['password'])) {
-            $validatedData['password'] = bcrypt($validatedData['password']);
-        }
+        $user->update([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => $request->filled('password') ? bcrypt($request->input('password')) : $user->password,
+            // Update other attributes as needed
+        ]);
 
-        $user->update($validatedData);
-
-        return response()->json($user);
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
     /**
@@ -86,6 +130,6 @@ class UserController extends Controller
     {
         $user->delete();
 
-        return response()->json(['message' => 'User deleted successfully']);
+        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 }
