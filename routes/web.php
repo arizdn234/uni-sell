@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\CartItemController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ShippingController;
@@ -34,7 +34,7 @@ Route::middleware(['auth', 'verified', CheckAdmin::class])->group(function () {
         Route::resource('products', ProductController::class);
         Route::resource('categories', CategoryController::class);
         Route::resource('orders', OrderController::class);
-        Route::resource('cart-items', CartItemController::class);
+        Route::resource('carts', CartController::class);
         Route::resource('payments', PaymentController::class);
         Route::resource('reviews', ReviewController::class);
         Route::resource('shippings', ShippingController::class);
