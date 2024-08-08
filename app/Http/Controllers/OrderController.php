@@ -14,7 +14,11 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::query()->with('user');
+        $query = Order::query()
+        ->with('user')
+        ->whereHas('user', function ($query) {
+            $query->where('is_admin', false);
+        });
 
         // Searching functionality
         if ($search = $request->get('search')) {
@@ -127,6 +131,8 @@ class OrderController extends Controller
      */
     public function destroy(Order $order)
     {
+        $order->items()->delete();
+
         $order->delete();
 
         if (request()->expectsJson()) {
