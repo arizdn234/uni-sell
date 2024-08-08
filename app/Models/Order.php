@@ -36,4 +36,13 @@ class Order extends Model
     {
         return $this->hasOne(Shipping::class);
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($order) {
+            $order->items()->delete();
+        });
+    }
 }
