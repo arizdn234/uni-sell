@@ -60,19 +60,16 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6|confirmed',
-            // Add other validation rules as needed
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|string',
         ]);
 
-        User::create([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => bcrypt($request->input('password')),
-            // Set other attributes as needed
-        ]);
+        $validated['password'] = bcrypt($request->password);
+
+        User::create($validated);
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
@@ -103,22 +100,27 @@ class UserController extends Controller
     // Update the specified user in storage.
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|min:6|confirmed',
-            // Add other validation rules as needed
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'email_verified_at' => 'nullable|date',
         ]);
 
-        $user->update([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => $request->filled('password') ? bcrypt($request->input('password')) : $user->password,
-            // Update other attributes as needed
-        ]);
+        if ($request->filled('password')) {
+            $validated['password'] = bcrypt($request->password);
+        } else {
+            unset($validated['password']);
+        }
+
+        $validated['email_verified_at'] = $request->input('email_verified_at') === '' ? null : $request->input('email_verified_at');
+
+        $user->update($validated);
 
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
+
+
 
     /**
      * Remove the specified user from storage.
