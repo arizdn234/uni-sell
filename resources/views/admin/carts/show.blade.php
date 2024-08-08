@@ -2,7 +2,7 @@
 
 @section('header')
     <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-        {{ __('Order Details') }}
+        {{ __('Cart Details') }}
     </h2>
 @endsection
 
@@ -11,52 +11,29 @@
         <div class="p-6 text-gray-100">
             <div class="flex flex-col">
                 <div class="mb-4">
-                    <h3 class="text-lg font-medium text-gray-300">Order Information</h3>
+                    <h3 class="text-lg font-medium text-gray-300">Cart Information</h3>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="p-4 bg-gray-700 rounded-lg shadow-md">
-                        <h4 class="text-sm font-medium text-gray-300">Customer Name:</h4>
-                        <p class="text-gray-200">{{ $order->user->name ?? 'N/A' }}</p>
+                        <h4 class="text-sm font-medium text-gray-300">User Name:</h4>
+                        <p class="text-gray-200">{{ $cart->user->name ?? 'N/A' }}</p>
                     </div>
                     <div class="p-4 bg-gray-700 rounded-lg shadow-md">
-                        <h4 class="text-sm font-medium text-gray-300">Total Amount:</h4>
-                        <p class="text-gray-200">Rp. {{ number_format((float)str_replace(',', '', $order->total_amount), 2) }}</p>
-                    </div>
-                    <div class="p-4 bg-gray-700 rounded-lg shadow-md">
-                        <h4 class="text-sm font-medium text-gray-300">Payment Method:</h4>
-                        <p class="text-gray-200">{{ $order->payment_method }}</p>
-                    </div>
-                    <div class="p-4 bg-gray-700 rounded-lg shadow-md">
-                        <h4 class="text-sm font-medium text-gray-300">Shipping Address:</h4>
-                        <p class="text-gray-200">{{ $order->shipping_address }}</p>
-                    </div>
-                    <div class="p-4 bg-gray-700 rounded-lg shadow-md">
-                        <h4 class="text-sm font-medium text-gray-300">Status:</h4>
-                        <p class="
-                            @if($order->status === 'completed')
-                                text-green-500
-                            @elseif($order->status === 'cancelled')
-                                text-red-500
-                            @elseif($order->status === 'pending' || $order->status === 'processing')
-                                text-amber-500
-                            @else
-                                text-gray-300
-                            @endif">
-                            {{ ucfirst($order->status) }}
-                        </p>
+                        <h4 class="text-sm font-medium text-gray-300">Total Items:</h4>
+                        <p class="text-gray-200">{{ $cart->items->count() }}</p>
                     </div>
                     <div class="p-4 bg-gray-700 rounded-lg shadow-md">
                         <h4 class="text-sm font-medium text-gray-300">Created At:</h4>
-                        <p class="text-yellow-500">{{ $order->created_at->diffForHumans() }}</p>
+                        <p class="text-yellow-500">{{ $cart->created_at->diffForHumans() }}</p>
                     </div>
                     <div class="p-4 bg-gray-700 rounded-lg shadow-md">
                         <h4 class="text-sm font-medium text-gray-300">Updated At:</h4>
-                        <p class="text-yellow-500">{{ $order->updated_at->diffForHumans() }}</p>
+                        <p class="text-yellow-500">{{ $cart->updated_at->diffForHumans() }}</p>
                     </div>
                 </div>
                 
                 <div class="mt-6">
-                    <h3 class="text-lg font-medium text-gray-300">Order Items</h3>
+                    <h3 class="text-lg font-medium text-gray-300">Cart Items</h3>
                     <table class="min-w-full divide-y divide-gray-700 mt-4">
                         <thead class="bg-gray-700">
                             <tr>
@@ -68,27 +45,34 @@
                             </tr>
                         </thead>
                         <tbody class="bg-gray-800 divide-y divide-gray-700">
-                            @foreach ($order->items as $index => $item)
+                            @php
+                                $totalAmount = 0;
+                            @endphp
+                            @foreach ($cart->items as $index => $item)
+                                @php
+                                    $subTotal = $item->quantity * $item->product->price;
+                                    $totalAmount += $subTotal;
+                                @endphp
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-300">{{ $index + 1 }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-gray-300">{{ $item->product->name ?? 'N/A' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-orange-500">{{ $item->quantity }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sky-500">Rp. {{ number_format((float)$item->price, 2) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sky-500">Rp. {{ number_format((float)$item->quantity * $item->price, 2) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sky-500">Rp. {{ number_format((float)$item->product->price, 2) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sky-500">Rp. {{ number_format($subTotal, 2) }}</td>
                                 </tr>
                             @endforeach
                             <!-- Total Amount -->
                             <tr class="bg-gray-700">
                                 <td colspan="4" class="px-6 py-4 whitespace-nowrap text-right font-medium text-green-600">Total:</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-green-600 font-medium">Rp. {{ number_format($order->items->sum(fn($item) => $item->quantity * $item->price), 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-green-600 font-medium">Rp. {{ number_format($totalAmount, 2) }}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div class="mt-6">
-                    <a href="{{ route('orders.index') }}" class="bg-teal-600 hover:bg-teal-800 text-white font-bold py-2 px-4 rounded">Back to Orders</a>
-                    <a href="{{ route('orders.edit', $order->id) }}" class="bg-amber-600 hover:bg-amber-800 text-white font-bold py-2 px-4 rounded">Edit Order</a>
+                    <a href="{{ route('carts.index') }}" class="bg-teal-600 hover:bg-teal-800 text-white font-bold py-2 px-4 rounded">Back to Carts</a>
+                    <a href="{{ route('carts.edit', $cart->id) }}" class="bg-amber-600 hover:bg-amber-800 text-white font-bold py-2 px-4 rounded">Edit Cart</a>
                 </div>
             </div>
         </div>

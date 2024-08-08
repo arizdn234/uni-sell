@@ -42,8 +42,8 @@
                                 <x-dropdown-link :href="route('orders.index')" :active="request()->routeIs('orders.*')">
                                     {{ __('Orders') }}
                                 </x-dropdown-link>
-                                <x-dropdown-link :href="route('cart-items.index')" :active="request()->routeIs('cart-items.*')">
-                                    {{ __('Cart Items') }}
+                                <x-dropdown-link :href="route('carts.index')" :active="request()->routeIs('carts.*')">
+                                    {{ __('Carts') }}
                                 </x-dropdown-link>
                                 <x-dropdown-link :href="route('payments.index')" :active="request()->routeIs('payments.*')">
                                     {{ __('Payments') }}

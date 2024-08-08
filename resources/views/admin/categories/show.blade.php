@@ -37,6 +37,7 @@
                 </div>
                 <div class="mt-6">
                     <a href="{{ route('categories.index') }}" class="bg-teal-600 hover:bg-teal-800 text-white font-bold py-2 px-4 rounded">Back to Categories</a>
+                    <a href="{{ route('categories.edit', $category->id) }}" class="bg-amber-600 hover:bg-amber-800 text-white font-bold py-2 px-4 rounded">Edit Category</a>
                 </div>
             </div>
         </div>

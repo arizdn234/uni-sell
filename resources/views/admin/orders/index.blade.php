@@ -58,7 +58,7 @@
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-300">{{ $orders->firstItem() + $index }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-gray-300">{{ $order->user->name ?? 'N/A' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-300">
+                            <td class="px-6 py-4 whitespace-nowrap text-green-500">
                                 Rp. {{ number_format((float)str_replace(',', '', $order->total_amount), 2) }}
                             </td>                            
                             <td class="px-6 py-4 whitespace-nowrap text-gray-300">{{ $order->payment_method }}</td>
