@@ -29,7 +29,6 @@ class Cart extends Model
         parent::boot();
 
         static::deleting(function ($cart) {
-            \Log::info('Deleting cart and its items:', ['cart_id' => $cart->id]);
             $cart->items()->delete();
         });
     }
