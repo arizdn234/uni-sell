@@ -1,197 +1,193 @@
-Here's a documentation for the Laravel Eloquent models in your e-commerce platform application. This documentation outlines the relationships and properties of each model, providing a clear understanding of the data structure and how the different entities interact with each other.
+# Database Schema Documentation
 
----
+This document provides an overview of the database schema for the e-commerce application, detailing the tables and their relationships.
 
-# E-Commerce Platform Models Documentation
+## Tables and Models
 
-## 1. **User Model**
+### 1. Users
 
-The `User` model represents a user in the system and includes information about authentication and user-related activities.
+**Table Name:** `users`
 
-### Attributes:
+**Model:** `User`
 
-- **`name`**: The name of the user.
-- **`email`**: The email address of the user.
-- **`password`**: The hashed password of the user.
-- **`is_admin`**: A boolean indicating if the user has administrative privileges.
+**Attributes:**
+- `id`: Primary key
+- `name`: String, name of the user
+- `email`: String, unique email of the user
+- `password`: String, hashed password
+- `is_admin`: Boolean, flag for admin users
+- `email_verified_at`: Timestamp, email verification date
+- `remember_token`: String, token used to remember the user
 
-### Hidden Attributes:
+**Relationships:**
+- `orders`: A user can have many orders (`hasMany`)
+- `reviews`: A user can have many reviews (`hasMany`)
+- `cart`: A user can have one cart (`hasOne`)
 
-- **`password`**: Hidden from serialization for security reasons.
-- **`remember_token`**: Token for "remember me" functionality, hidden for security.
+### 2. Orders
 
-### Casts:
+**Table Name:** `orders`
 
-- **`email_verified_at`**: Cast to a `datetime` object.
-- **`password`**: Automatically hashed when set.
+**Model:** `Order`
 
-### Relationships:
+**Attributes:**
+- `id`: Primary key
+- `user_id`: Foreign key referencing `users`
+- `total_amount`: Decimal, total amount of the order
+- `status`: String, status of the order
+- `payment_method`: String, method of payment used
+- `shipping_address`: String, address for shipping
 
-- **`orders()`**: One-to-Many relationship with `Order`. A user can have multiple orders.
-- **`reviews()`**: One-to-Many relationship with `Review`. A user can write multiple reviews.
-- **`cart()`**: One-to-One relationship with `Cart`. A user can have one active cart.
+**Relationships:**
+- `user`: An order belongs to a user (`belongsTo`)
+- `items`: An order can have many items (`hasMany`)
+- `payment`: An order has one payment (`hasOne`)
+- `shipping`: An order has one shipping record (`hasOne`)
 
----
+**Cascading:**
+- Deleting an order will delete its associated items.
 
-## 2. **Category Model**
+### 3. Order Items
 
-The `Category` model organizes products into groups and supports hierarchical structures with parent-child relationships.
+**Table Name:** `order_items`
 
-### Attributes:
+**Model:** `OrderItem`
 
-- **`name`**: The name of the category.
-- **`parent_id`**: References another `Category` to define a parent-child hierarchy.
+**Attributes:**
+- `id`: Primary key
+- `order_id`: Foreign key referencing `orders`
+- `product_id`: Foreign key referencing `products`
+- `quantity`: Integer, quantity of the product ordered
+- `price`: Decimal, price of the product at the time of order
 
-### Relationships:
+**Relationships:**
+- `order`: An order item belongs to an order (`belongsTo`)
+- `product`: An order item belongs to a product (`belongsTo`)
 
-- **`products()`**: One-to-Many relationship with `Product`. A category can have multiple products.
-- **`parent()`**: Belongs-To relationship with `Category`. Represents the parent category.
-- **`children()`**: One-to-Many relationship with `Category`. Represents sub-categories.
+### 4. Products
 
----
+**Table Name:** `products`
 
-## 3. **Product Model**
+**Model:** `Product`
 
-The `Product` model represents items available for sale.
+**Attributes:**
+- `id`: Primary key
+- `name`: String, name of the product
+- `description`: Text, description of the product
+- `price`: Decimal, price of the product
+- `stock`: Integer, stock quantity available
+- `category_id`: Foreign key referencing `categories`
+- `image_url`: String, URL of the product image
 
-### Attributes:
+**Relationships:**
+- `category`: A product belongs to a category (`belongsTo`)
+- `reviews`: A product can have many reviews (`hasMany`)
+- `orderItems`: A product can appear in many order items (`hasMany`)
 
-- **`name`**: The name of the product.
-- **`description`**: A detailed description of the product.
-- **`price`**: The price of the product in Indonesian Rupiah.
-- **`stock`**: The quantity available in inventory.
-- **`category_id`**: Foreign key to the `Category` model.
-- **`image_url`**: URL for the product image.
+### 5. Categories
 
-### Relationships:
+**Table Name:** `categories`
 
-- **`category()`**: Belongs-To relationship with `Category`. Links a product to its category.
-- **`reviews()`**: One-to-Many relationship with `Review`. A product can have multiple reviews.
-- **`orderItems()`**: One-to-Many relationship with `OrderItem`. A product can be part of multiple order items.
+**Model:** `Category`
 
----
+**Attributes:**
+- `id`: Primary key
+- `name`: String, name of the category
+- `parent_id`: Foreign key referencing `categories` (self-referential)
 
-## 4. **Order Model**
+**Relationships:**
+- `products`: A category can have many products (`hasMany`)
+- `parent`: A category can have one parent category (`belongsTo`)
+- `children`: A category can have many child categories (`hasMany`)
 
-The `Order` model tracks customer purchases and order details.
+### 6. Reviews
 
-### Attributes:
+**Table Name:** `reviews`
 
-- **`user_id`**: Foreign key to the `User` model.
-- **`total_amount`**: The total cost of the order.
-- **`status`**: Current status of the order (e.g., pending, completed).
-- **`payment_method`**: Method used to pay for the order.
-- **`shipping_address`**: Address where the order will be shipped.
+**Model:** `Review`
 
-### Relationships:
+**Attributes:**
+- `id`: Primary key
+- `product_id`: Foreign key referencing `products`
+- `user_id`: Foreign key referencing `users`
+- `rating`: Integer, rating given by the user
+- `comment`: Text, comment from the user
 
-- **`user()`**: Belongs-To relationship with `User`. Links an order to a user.
-- **`items()`**: One-to-Many relationship with `OrderItem`. An order contains multiple items.
-- **`payment()`**: One-to-One relationship with `Payment`. Links an order to its payment details.
-- **`shipping()`**: One-to-One relationship with `Shipping`. Links an order to its shipping information.
+**Relationships:**
+- `product`: A review belongs to a product (`belongsTo`)
+- `user`: A review belongs to a user (`belongsTo`)
 
----
+### 7. Payments
 
-## 5. **OrderItem Model**
+**Table Name:** `payments`
 
-The `OrderItem` model details the individual products in an order.
+**Model:** `Payment`
 
-### Attributes:
+**Attributes:**
+- `id`: Primary key
+- `order_id`: Foreign key referencing `orders`
+- `amount`: Decimal, amount paid
+- `payment_method`: String, method of payment used
+- `status`: String, payment status
 
-- **`order_id`**: Foreign key to the `Order` model.
-- **`product_id`**: Foreign key to the `Product` model.
-- **`quantity`**: Quantity of the product ordered.
-- **`price`**: Price of the product at the time of order.
+**Relationships:**
+- `order`: A payment belongs to an order (`belongsTo`)
 
-### Relationships:
+### 8. Shipping
 
-- **`order()`**: Belongs-To relationship with `Order`. Links an order item to an order.
-- **`product()`**: Belongs-To relationship with `Product`. Links an order item to a product.
+**Table Name:** `shipping`
 
----
+**Model:** `Shipping`
 
-## 6. **Review Model**
+**Attributes:**
+- `id`: Primary key
+- `order_id`: Foreign key referencing `orders`
+- `shipping_method`: String, method of shipping
+- `tracking_number`: String, tracking number for shipment
+- `status`: String, shipping status
 
-The `Review` model allows users to leave feedback on products.
+**Relationships:**
+- `order`: Shipping belongs to an order (`belongsTo`)
 
-### Attributes:
+### 9. Carts
 
-- **`product_id`**: Foreign key to the `Product` model.
-- **`user_id`**: Foreign key to the `User` model.
-- **`rating`**: Numerical rating given to a product.
-- **`comment`**: Textual review or feedback.
+**Table Name:** `carts`
 
-### Relationships:
+**Model:** `Cart`
 
-- **`product()`**: Belongs-To relationship with `Product`. Links a review to a product.
-- **`user()`**: Belongs-To relationship with `User`. Links a review to the user who wrote it.
+**Attributes:**
+- `id`: Primary key
+- `user_id`: Foreign key referencing `users`
+- `status`: String, status of the cart
 
----
+**Relationships:**
+- `user`: A cart belongs to a user (`belongsTo`)
+- `items`: A cart can have many cart items (`hasMany`)
 
-## 7. **Cart Model**
+**Cascading:**
+- Deleting a cart will delete its associated items.
 
-The `Cart` model represents a user's active shopping cart.
+### 10. Cart Items
 
-### Attributes:
+**Table Name:** `cart_items`
 
-- **`user_id`**: Foreign key to the `User` model.
+**Model:** `CartItem`
 
-### Relationships:
+**Attributes:**
+- `id`: Primary key
+- `cart_id`: Foreign key referencing `carts`
+- `product_id`: Foreign key referencing `products`
+- `quantity`: Integer, quantity of the product in the cart
+- `price`: Decimal, price of the product in the cart
 
-- **`user()`**: Belongs-To relationship with `User`. Links a cart to a user.
-- **`items()`**: One-to-Many relationship with `CartItem`. A cart contains multiple items.
+**Relationships:**
+- `cart`: A cart item belongs to a cart (`belongsTo`)
+- `product`: A cart item belongs to a product (`belongsTo`)
 
----
+## Notes
 
-## 8. **CartItem Model**
+- **Mass Assignment:** All models have `fillable` attributes specified for mass assignment protection.
+- **Casting:** The `User` model includes casting for the `email_verified_at` attribute to a `datetime`.
+- **Soft Deletion:** Some relationships include cascading deletions, such as `Order` and `Cart`, where deleting a parent record also deletes associated child records.
 
-The `CartItem` model represents individual products within a cart.
-
-### Attributes:
-
-- **`cart_id`**: Foreign key to the `Cart` model.
-- **`product_id`**: Foreign key to the `Product` model.
-- **`quantity`**: Quantity of the product in the cart.
-
-### Relationships:
-
-- **`cart()`**: Belongs-To relationship with `Cart`. Links a cart item to a cart.
-- **`product()`**: Belongs-To relationship with `Product`. Links a cart item to a product.
-
----
-
-## 9. **Payment Model**
-
-The `Payment` model contains information about the payment transaction for an order.
-
-### Attributes:
-
-- **`order_id`**: Foreign key to the `Order` model.
-- **`amount`**: Amount paid.
-- **`payment_method`**: Method used for the payment (e.g., credit card, PayPal).
-- **`status`**: Current status of the payment (e.g., pending, completed).
-
-### Relationships:
-
-- **`order()`**: Belongs-To relationship with `Order`. Links a payment to an order.
-
----
-
-## 10. **Shipping Model**
-
-The `Shipping` model manages shipping details and tracking for orders.
-
-### Attributes:
-
-- **`order_id`**: Foreign key to the `Order` model.
-- **`shipping_method`**: Method used to ship the order (e.g., standard, express).
-- **`tracking_number`**: Tracking number provided by the shipping service.
-- **`status`**: Current status of the shipment (e.g., in transit, delivered).
-
-### Relationships:
-
-- **`order()`**: Belongs-To relationship with `Order`. Links shipping details to an order.
-
----
-
-This documentation provides a clear understanding of how each model is structured and how they interact with each other within the e-commerce application. It helps developers quickly grasp the relationships and responsibilities of each entity in the system.
+This schema is designed to efficiently handle typical operations in an e-commerce platform, ensuring data integrity and enabling complex queries with ease.
