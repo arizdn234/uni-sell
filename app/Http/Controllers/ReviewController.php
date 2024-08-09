@@ -3,51 +3,88 @@
 namespace App\Http\Controllers;
 
 use App\Models\Review;
+use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
     /**
      * Display a listing of the reviews.
-     *
-     * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $reviews = Review::with('product', 'user')->get();
-        return response()->json($reviews);
+        $search = $request->input('search');
+        $sort = $request->input('sort');
+
+        $query = Review::query()
+        ->with('user')
+        ->whereHas('user', function ($query) {
+            $query->where('is_admin', false);
+        });
+
+        if ($search) {
+            $query->where('comment', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', function ($q) use ($search) {
+                      $q->where('name', 'like', '%' . $search . '%');
+                  });
+        }
+
+        switch ($sort) {
+            case 'rating_asc':
+                $query->orderBy('rating', 'asc');
+                break;
+            case 'rating_desc':
+                $query->orderBy('rating', 'desc');
+                break;
+            case 'date_asc':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'date_desc':
+                $query->orderBy('created_at', 'desc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        $reviews = $query->paginate(10);
+
+        return view('admin.reviews.index', compact('reviews'));
+    }
+
+    public function show($id)
+    {
+        $review = Review::with(['product', 'user'])->findOrFail($id);
+        return view('admin.reviews.show', compact('review'));
+    }
+
+    /**
+     * Show the form for creating a new review.
+     */
+    public function create()
+    {
+        $products = Product::all();
+        $users = User::where('is_admin', false)->get();
+        
+        return view('admin.reviews.create', compact(['products', 'users']));
     }
 
     /**
      * Store a newly created review in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'product_id' => 'required|exists:products,id',
+        $request->validate([
             'user_id' => 'required|exists:users,id',
+            'product_id' => 'required|exists:products,id',
             'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string',
+            'comment' => 'required|string',
         ]);
 
-        $review = Review::create($validatedData);
+        Review::create($request->all());
 
-        return response()->json($review, 201);
-    }
-
-    /**
-     * Display the specified review.
-     *
-     * @param  \App\Models\Review  $review
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Review $review)
-    {
-        $review->load('product', 'user');
-        return response()->json($review);
+        return redirect()->route('reviews.index')->with('success', 'Review created successfully.');
     }
 
     /**
@@ -57,18 +94,27 @@ class ReviewController extends Controller
      * @param  \App\Models\Review  $review
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Review $review)
+    public function edit($id)
     {
-        $validatedData = $request->validate([
-            'product_id' => 'exists:products,id',
-            'user_id' => 'exists:users,id',
-            'rating' => 'integer|min:1|max:5',
-            'comment' => 'nullable|string',
+        $review = Review::findOrFail($id);
+        $products = Product::all();
+        $users = User::where('is_admin', false)->get();
+        return view('admin.reviews.edit', compact('review', 'products', 'users'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'user_id' => 'required|exists:users,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'required|string|max:1000',
         ]);
 
-        $review->update($validatedData);
+        $review = Review::findOrFail($id);
+        $review->update($validated);
 
-        return response()->json($review);
+        return redirect()->route('reviews.index')->with('success', 'Review updated successfully.');
     }
 
     /**
@@ -81,6 +127,6 @@ class ReviewController extends Controller
     {
         $review->delete();
 
-        return response()->json(['message' => 'Review deleted successfully']);
+        return redirect()->route('reviews.index')->with('success', 'Review deleted successfully.');
     }
 }
