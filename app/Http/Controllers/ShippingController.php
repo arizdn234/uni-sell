@@ -3,14 +3,45 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shipping;
+use App\Models\Order;
 use Illuminate\Http\Request;
 
 class ShippingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $shippings = Shipping::with('order')->get();
-        return response()->json($shippings);
+        $search = $request->input('search');
+        $sort = $request->input('sort');
+
+        $query = Shipping::query();
+
+        // Search functionality
+        if ($search) {
+            $query->where('tracking_number', 'like', '%' . $search . '%');
+        }
+
+        // Sorting functionality
+        switch ($sort) {
+            case 'date_asc':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'date_desc':
+                $query->orderBy('created_at', 'desc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        $shippings = $query->paginate(10);
+
+        return view('admin.shippings.index', compact('shippings'));
+    }
+
+    public function create()
+    {
+        $orders = Order::all();
+        return view('admin.shippings.create', compact('orders'));
     }
 
     public function store(Request $request)
@@ -24,33 +55,38 @@ class ShippingController extends Controller
 
         $shipping = Shipping::create($validatedData);
 
-        return response()->json($shipping, 201);
+        return redirect()->route('shippings.index')->with('success', 'Shipping created successfully.');
     }
 
     public function show(Shipping $shipping)
     {
         $shipping->load('order');
-        return response()->json($shipping);
+        return view('admin.shippings.show', compact('shipping'));
     }
 
+    public function edit(Shipping $shipping)
+    {
+        return view('admin.shippings.edit', compact('shipping'));
+    }
+
+    // Update the specified shipping in storage
     public function update(Request $request, Shipping $shipping)
     {
-        $validatedData = $request->validate([
-            'order_id' => 'exists:orders,id',
-            'shipping_method' => 'string',
-            'tracking_number' => 'string',
-            'status' => 'string',
+        $request->validate([
+            'shipping_method' => 'required|string',
+            'status' => 'required|string|in:shipped,arrived,processed',
         ]);
 
-        $shipping->update($validatedData);
+        $shipping->update($request->all());
 
-        return response()->json($shipping);
+        return redirect()->route('shippings.index')->with('success', 'Shipping updated successfully.');
     }
 
+    // Remove the specified shipping from storage
     public function destroy(Shipping $shipping)
     {
         $shipping->delete();
 
-        return response()->json(['message' => 'Shipping deleted successfully']);
+        return redirect()->route('shippings.index')->with('success', 'Shipping deleted successfully.');
     }
 }
