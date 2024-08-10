@@ -9,7 +9,7 @@
 @section('content')
 <div class="mb-4 flex justify-between items-center">
     <!-- Add a call to action or a quick summary of the dashboard -->
-    <h1 class="text-4xl pb-1 font-bold transition-all duration-500 ease-in-out transform hover:invert"
+    <h1 class="p-4 sm:p-1 text-4xl pb-1 font-bold transition-all duration-500 ease-in-out transform hover:invert"
         style="background: linear-gradient(120deg, #5900ff, #00eeff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -21,7 +21,7 @@
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
     <!-- Total Orders -->
-    <div class="bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
+    <div class="cursor-crosshair bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
         <i class="fas fa-shopping-cart text-teal-400 text-3xl mb-4"></i>
         <h3 class="text-gray-200 text-lg mb-4">Total Orders</h3>
         <p class="text-3xl text-teal-500">{{ $totalOrders }}</p>
@@ -29,7 +29,7 @@
     </div>    
 
     <!-- Total Products -->
-    <div class="bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
+    <div class="cursor-crosshair bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
         <i class="fas fa-box text-blue-400 text-3xl mb-4"></i>
         <h3 class="text-gray-200 text-lg mb-4">Total Products</h3>
         <p class="text-3xl text-blue-500">{{ $totalProducts }}</p>
@@ -37,7 +37,7 @@
     </div>
 
     <!-- Total Users -->
-    <div class="bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
+    <div class="cursor-crosshair bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
         <i class="fas fa-users text-green-400 text-3xl mb-4"></i>
         <h3 class="text-gray-200 text-lg mb-4">Total Users</h3>
         <p class="text-3xl text-green-500">{{ $totalUsers }}</p>
@@ -45,7 +45,7 @@
     </div>
 
     <!-- Total Reviews -->
-    <div class="bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
+    <div class="cursor-crosshair bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
         <i class="fas fa-star text-yellow-400 text-3xl mb-4"></i>
         <h3 class="text-gray-200 text-lg mb-4">Total Reviews</h3>
         <p class="text-3xl text-yellow-500">{{ $totalReviews }}</p>
@@ -53,7 +53,7 @@
     </div>
 
     <!-- Total Revenue -->
-    <div class="bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
+    <div class="cursor-crosshair bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
         <i class="fas fa-dollar-sign text-purple-400 text-3xl mb-4"></i>
         <h3 class="text-gray-200 text-lg mb-4">Total Revenue</h3>
         <p class="text-3xl text-purple-500">Rp. {{ $totalRevenue }}</p>
@@ -61,7 +61,7 @@
     </div>
 
     <!-- Revenue from Product with Highest Revenue -->
-    <div class="bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
+    <div class="cursor-crosshair bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
         <i class="fas fa-chart-line text-red-400 text-3xl mb-4"></i>
         <h3 class="text-gray-200 text-lg mb-4">Revenue from Top Product</h3>
         <p class="text-3xl text-red-500">Rp. {{ $topProductRevenue }}</p>
@@ -69,7 +69,7 @@
     </div>
 
     <!-- Average Order Value -->
-    <div class="bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
+    <div class="cursor-crosshair bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
         <i class="fas fa-credit-card text-teal-400 text-3xl mb-4"></i>
         <h3 class="text-gray-200 text-lg mb-4">Average Order Value</h3>
         <p class="text-3xl text-teal-500">{{ $averageOrderValue }}</p>
@@ -77,7 +77,7 @@
     </div>
 
     <!-- Average Review Rating -->
-    <div class="bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
+    <div class="cursor-crosshair bg-gray-800 dark:bg-gray-900 border border-gray-700 overflow-hidden shadow-sm sm:rounded-lg p-6 text-center transition-all duration-500 hover:bg-gray-600 dark:hover:bg-gray-800">
         <i class="fas fa-star-half-alt text-yellow-400 text-3xl mb-4"></i>
         <h3 class="text-gray-200 text-lg mb-4">Average Review Rating</h3>
         <p class="text-3xl text-yellow-500">{{ number_format($averageRating, 1) }}</p>
