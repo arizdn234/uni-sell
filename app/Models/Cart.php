@@ -32,4 +32,11 @@ class Cart extends Model
             $cart->items()->delete();
         });
     }
+
+    public function total()
+    {
+        return $this->items->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
+    }
 }
