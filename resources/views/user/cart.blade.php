@@ -1,0 +1,217 @@
+<!-- resources/views/user/cart.blade.php -->
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Shopping Cart') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    {{ __("Review your selected items before proceeding to checkout.") }}
+                </div>
+            </div>
+
+            <!-- Shopping Cart Items -->
+            <div class="mt-8 bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    @if (!isset($cart) || $cart->items->isEmpty())
+                        <p class="text-gray-600 dark:text-gray-400">Your cart is currently empty.</p>
+                    @else
+                        <table class="min-w-full leading-normal">
+                            <thead>
+                                <tr>
+                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
+                                        Product
+                                    </th>
+                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
+                                        Quantity
+                                    </th>
+                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
+                                        Price
+                                    </th>
+                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
+                                        Total
+                                    </th>
+                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="cart-items">
+                                @foreach ($cart->items as $item)
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700" data-item-id="{{ $item->id }}">
+                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0">
+                                                    <img class="w-8 h-8 rounded-full object-cover" src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}">
+                                                </div>
+                                                <div class="ml-3">
+                                                    <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap">
+                                                        {{ $item->product->name }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
+                                            <div class="flex items-center">
+                                                <button class="text-gray-600 dark:text-gray-300 quantity-change" data-action="decrease">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" class="w-16 border rounded py-1 text-center quantity-input mx-2">
+                                                <button class="text-gray-600 dark:text-gray-300 quantity-change" data-action="increase">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
+                                            <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap">
+                                                Rp {{ number_format($item->price, 2, ',', '.') }}
+                                            </p>
+                                        </td>
+                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
+                                            <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap item-total">
+                                                Rp {{ number_format($item->price * $item->quantity, 2, ',', '.') }}
+                                            </p>
+                                        </td>
+                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
+                                            <button class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-600 remove-item">
+                                                Remove
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                        <!-- Total Price and Checkout -->
+                        <div class="flex justify-end mt-6">
+                            <div class="text-right">
+                                <p class="text-xl font-semibold text-gray-900 dark:text-gray-200">
+                                    Total: Rp <span id="cart-total">{{ number_format($total, 2, ',', '.') }}</span>
+                                </p>
+                                <a class="bg-teal-500 text-white py-2 px-4 rounded hover:bg-teal-600 transition mt-4">
+                                    Proceed to Checkout
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cartItems = document.getElementById('cart-items');
+
+            
+            cartItems.addEventListener('input', function (event) {
+                if (event.target.classList.contains('quantity-input')) {
+                    const row = event.target.closest('tr');
+                    const itemId = row.dataset.itemId;
+                    const quantity = event.target.value;
+
+                    fetch(`/cart/update/${itemId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ quantity: quantity })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            row.querySelector('.item-total').textContent = `Rp ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.item_total).replace(/\D00(?=\D*$)/, '')}`;
+                            document.getElementById('cart-total').textContent = `${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.cart_total).replace(/\D00(?=\D*$)/, '')}`;
+                            showToast(data.message);
+                        } else {
+                            showToast(data.message, 'error');
+                        }
+                    });
+                }
+            });
+
+            
+            cartItems.addEventListener('click', function (event) {
+                if (event.target.classList.contains('quantity-change')) {
+                    const button = event.target;
+                    const row = button.closest('tr');
+                    const itemId = row.dataset.itemId;
+                    const quantityInput = row.querySelector('.quantity-input');
+                    let quantity = parseInt(quantityInput.value);
+
+                    if (button.dataset.action === 'increase') {
+                        quantity++;
+                    } else if (button.dataset.action === 'decrease' && quantity > 1) {
+                        quantity--;
+                    }
+
+                    quantityInput.value = quantity;
+
+                    fetch(`/cart/update/${itemId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ quantity: quantity })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            row.querySelector('.item-total').textContent = `Rp ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.item_total).replace(/\D00(?=\D*$)/, '')}`;
+                            document.getElementById('cart-total').textContent = `${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.cart_total).replace(/\D00(?=\D*$)/, '')}`;
+                            showToast(data.message);
+                        } else {
+                            showToast(data.message, 'error');
+                        }
+                    });
+                }
+            });
+
+            
+            cartItems.addEventListener('click', function (event) {
+                if (event.target.classList.contains('remove-item')) {
+                    const row = event.target.closest('tr');
+                    const itemId = row.dataset.itemId;
+
+                    fetch(`/cart/remove/${itemId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            row.remove();
+                            document.getElementById('cart-total').textContent = `${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.cart_total).replace(/\D00(?=\D*$)/, '')}`;
+                            showToast(data.message);
+                        } else {
+                            showToast(data.message, 'error');
+                        }
+                    });
+                }
+            });
+
+            
+            function showToast(message, type = 'success') {
+                const toastContainer = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `bg-${type === 'success' ? 'green' : 'red'}-500 text-white p-3 rounded`;
+                toast.textContent = message;
+
+                toastContainer.appendChild(toast);
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000); 
+            }
+        });
+    </script>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-0 right-0 p-4 space-y-2"></div>
+</x-app-layout>
