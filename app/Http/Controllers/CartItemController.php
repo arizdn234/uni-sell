@@ -32,23 +32,49 @@ class CartItemController extends Controller
         return response()->json($cartItem);
     }
 
-    public function update(Request $request, CartItem $cartItem)
+    public function update(Request $request, $itemId)
     {
-        $validatedData = $request->validate([
-            'cart_id' => 'exists:carts,id',
-            'product_id' => 'exists:products,id',
-            'quantity' => 'integer|min:1',
+        $quantity = $request->input('quantity');
+        $cart = auth()->user()->cart;
+        $cartItem = $cart->items()->where('id', $itemId)->first();
+        $cartItem->quantity = $quantity;
+        $cartItem->save();
+
+        $cartTotal = $cart->items->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
+
+        return response()->json([
+            'success' => true,
+            'item_total' => $cartItem->price * $cartItem->quantity,
+            'cart_total' => $cartTotal,
+            'message' => 'Item updated successfully'
         ]);
-
-        $cartItem->update($validatedData);
-
-        return response()->json($cartItem);
     }
 
-    public function destroy(CartItem $cartItem)
+    public function destroy($itemId)
     {
+        $cartItem = CartItem::find($itemId);
+
+        if (!$cartItem) {
+            return response()->json(['success' => false, 'message' => 'Cart item not found.'], 404);
+        }
+
         $cartItem->delete();
 
-        return response()->json(['message' => 'Cart item deleted successfully']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Cart item deleted successfully.',
+            'cart_total' => $this->calculateCartTotal()
+        ]);
+    }
+
+    private function calculateCartTotal()
+    {
+        return CartItem::with('product')
+            ->get()
+            ->sum(function ($item) {
+                return $item->product->price * $item->quantity;
+            });
     }
 }

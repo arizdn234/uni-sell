@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\CartItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class CartController extends Controller
 {
@@ -173,4 +174,56 @@ class CartController extends Controller
             return response()->json(['success' => false, 'message' => 'Failed to add product to cart']);
         }
     }
+
+    public function updateCart(Request $request, $itemId)
+    {
+        $quantity = $request->input('quantity');
+        
+        // Simulate cart update (you should replace this with your actual cart update logic)
+        $cart = Session::get('cart', []);
+        
+        if (isset($cart[$itemId])) {
+            $cart[$itemId]['quantity'] = $quantity;
+            Session::put('cart', $cart);
+
+            // Calculate new totals (replace with your actual logic)
+            $itemTotal = $cart[$itemId]['price'] * $quantity;
+            $cartTotal = array_reduce($cart, function ($carry, $item) {
+                return $carry + ($item['price'] * $item['quantity']);
+            }, 0);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cart updated successfully!',
+                'item_total' => $itemTotal,
+                'cart_total' => $cartTotal
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Item not found.']);
+    }
+
+    // Remove an item from the cart
+    public function removeCart($itemId)
+    {
+        $cart = Session::get('cart', []);
+        
+        if (isset($cart[$itemId])) {
+            unset($cart[$itemId]);
+            Session::put('cart', $cart);
+
+            $cartTotal = array_reduce($cart, function ($carry, $item) {
+                return $carry + ($item['price'] * $item['quantity']);
+            }, 0);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Item removed successfully!',
+                'cart_total' => $cartTotal
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Item not found.']);
+    }
+
 }
