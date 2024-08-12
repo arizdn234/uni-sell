@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ShippingController;
@@ -38,6 +39,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::get('/cart', [ClientController::class, 'cart'])->name('user.cart');
     Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::post('/cart/update/{itemId}', [CartItemController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/remove/{itemId}', [CartItemController::class, 'destroy'])->name('cart.remove');
+    
     Route::get('/promo', [ClientController::class, 'promo'])->name('promo.page');
     Route::get('/new', [ClientController::class, 'newArrivals'])->name('new.arrivals');
 
