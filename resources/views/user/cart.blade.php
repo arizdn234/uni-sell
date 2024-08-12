@@ -33,7 +33,7 @@
                                         Price
                                     </th>
                                     <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
-                                        Total
+                                        Sub-total
                                     </th>
                                     <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700"></th>
                                 </tr>
@@ -87,8 +87,8 @@
                         <!-- Total Price and Checkout -->
                         <div class="flex justify-end mt-6">
                             <div class="text-right">
-                                <p class="text-xl font-semibold text-gray-900 dark:text-gray-200">
-                                    Total: Rp <span id="cart-total">{{ number_format($total, 2, ',', '.') }}</span>
+                                <p class="pb-7 text-xl font-semibold text-gray-900 dark:text-gray-200">
+                                    Total: <span id="cart-total">{{ number_format($total, 2, ',', '.') }}</span>
                                 </p>
                                 <a class="bg-teal-500 text-white py-2 px-4 rounded hover:bg-teal-600 transition mt-4">
                                     Proceed to Checkout
@@ -104,36 +104,19 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const cartItems = document.getElementById('cart-items');
-
             
+            // Handle quantity input change
             cartItems.addEventListener('input', function (event) {
                 if (event.target.classList.contains('quantity-input')) {
                     const row = event.target.closest('tr');
                     const itemId = row.dataset.itemId;
-                    const quantity = event.target.value;
+                    const quantity = parseInt(event.target.value);
 
-                    fetch(`/cart/update/${itemId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ quantity: quantity })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            row.querySelector('.item-total').textContent = `Rp ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.item_total).replace(/\D00(?=\D*$)/, '')}`;
-                            document.getElementById('cart-total').textContent = `${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.cart_total).replace(/\D00(?=\D*$)/, '')}`;
-                            showToast(data.message);
-                        } else {
-                            showToast(data.message, 'error');
-                        }
-                    });
+                    updateCartItem(itemId, quantity);
                 }
             });
 
-            
+            // Handle quantity change buttons
             cartItems.addEventListener('click', function (event) {
                 if (event.target.classList.contains('quantity-change')) {
                     const button = event.target;
@@ -150,65 +133,88 @@
 
                     quantityInput.value = quantity;
 
-                    fetch(`/cart/update/${itemId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ quantity: quantity })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            row.querySelector('.item-total').textContent = `Rp ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.item_total).replace(/\D00(?=\D*$)/, '')}`;
-                            document.getElementById('cart-total').textContent = `${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.cart_total).replace(/\D00(?=\D*$)/, '')}`;
-                            showToast(data.message);
-                        } else {
-                            showToast(data.message, 'error');
-                        }
-                    });
+                    updateCartItem(itemId, quantity);
                 }
             });
 
-            
+            // Handle remove item button
             cartItems.addEventListener('click', function (event) {
                 if (event.target.classList.contains('remove-item')) {
                     const row = event.target.closest('tr');
                     const itemId = row.dataset.itemId;
 
-                    fetch(`/cart/remove/${itemId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            row.remove();
-                            document.getElementById('cart-total').textContent = `${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.cart_total).replace(/\D00(?=\D*$)/, '')}`;
-                            showToast(data.message);
-                        } else {
-                            showToast(data.message, 'error');
-                        }
-                    });
+                    if (confirm('Are you sure you want to remove this item from your cart?')) {
+                        fetch(`/cart/remove/${itemId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                row.remove();
+                                document.getElementById('cart-total').textContent = `${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.cart_total).replace(/\D00(?=\D*$)/, '')}`;
+                                showToast(data.message);
+                            } else {
+                                showToast(data.message, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showToast('An error occurred while removing the item.', 'error');
+                        });
+                    }
                 }
             });
 
-            
+            // Function to update cart item quantity
+            function updateCartItem(itemId, quantity) {
+                fetch(`/cart/update/${itemId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ quantity: quantity })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const row = document.querySelector(`tr[data-item-id="${itemId}"]`);
+                        row.querySelector('.item-total').textContent = `Rp ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.item_total).replace(/\D00(?=\D*$)/, '')}`;
+                        document.getElementById('cart-total').textContent = `${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.cart_total).replace(/\D00(?=\D*$)/, '')}`;
+                        showToast(data.message);
+                    } else {
+                        showToast(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('An error occurred while updating the item.', 'error');
+                });
+            }
+
+            // Function to show toast
             function showToast(message, type = 'success') {
                 const toastContainer = document.getElementById('toast-container');
                 const toast = document.createElement('div');
-                toast.className = `bg-${type === 'success' ? 'green' : 'red'}-500 text-white p-3 rounded`;
+
+                if (type === 'success') {
+                    toast.className = 'bg-green-500 text-white p-3 rounded';
+                } else {
+                    toast.className = 'bg-red-500 text-white p-3 rounded';
+                }
+
                 toast.textContent = message;
 
                 toastContainer.appendChild(toast);
                 setTimeout(() => {
                     toast.remove();
-                }, 3000); 
+                }, 3000);
             }
+
         });
     </script>
 
