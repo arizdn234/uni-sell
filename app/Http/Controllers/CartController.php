@@ -118,18 +118,14 @@ class CartController extends Controller
 
     public function destroy(Cart $cart)
     {
-        // Pastikan $cart adalah instance dari model Cart
         if (!$cart) {
             \Log::error('Cart not found or already deleted:', ['cart_id' => $cart->id ?? null]);
-            return redirect()->route('carts.index')->withErrors('Cart not found or already deleted.');
         }
 
-        \Log::info('Attempting to delete cart:', ['cart_id' => $cart->id]);
 
-        $cart->items()->delete(); // Delete related cart items
-        $cart->delete(); // Delete the cart itself
+        $cart->items()->delete();
+        $cart->delete();
 
-        \Log::info('Cart deleted:', ['cart_id' => $cart->id]);
 
         if (request()->expectsJson()) {
             return response()->json(['message' => 'Cart deleted successfully']);
@@ -138,5 +134,43 @@ class CartController extends Controller
         return redirect()->route('carts.index')->with('success', 'Cart deleted successfully.');
     }
 
+    public function addToCart(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|integer|exists:products,id',
+            'quantity' => 'required|integer|min:1',
+        ]);
 
+        $productId = $request->input('product_id');
+        $quantity = $request->input('quantity');
+        $userId = auth()->id(); 
+
+        try {
+            
+            $cart = Cart::firstOrCreate(['user_id' => $userId]);
+
+            
+            $cartItem = CartItem::where('cart_id', $cart->id)
+                                ->where('product_id', $productId)
+                                ->first();
+
+            if ($cartItem) {
+                
+                $cartItem->increment('quantity', $quantity);
+            } else {
+                
+                CartItem::create([
+                    'cart_id' => $cart->id,
+                    'product_id' => $productId,
+                    'quantity' => $quantity,
+                ]);
+            }
+
+            return response()->json(['success' => true, 'message' => 'Product added to cart']);
+        } catch (\Exception $e) {
+            
+            \Log::error('Failed to add product to cart', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Failed to add product to cart']);
+        }
+    }
 }
