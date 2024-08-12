@@ -36,16 +36,10 @@ Route::middleware(['auth', 'verified', CheckAdmin::class])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [ClientController::class, 'dashboard'])->name('user.dashboard');
     
-    // dummy routes
-    Route::get('/cart', function () {
-        return view('user.cart');
-    })->name('user.cart');
-    Route::get('/promo', function () {
-        return view('user.promo');
-    })->name('promo.page');
-    Route::get('/new', function () {
-        return view('user.new');
-    })->name('new.arrivals');
+    Route::get('/cart', [ClientController::class, 'cart'])->name('user.cart');
+    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::get('/promo', [ClientController::class, 'promo'])->name('promo.page');
+    Route::get('/new', [ClientController::class, 'newArrivals'])->name('new.arrivals');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
