@@ -15,9 +15,9 @@
             <!-- Contact Info -->
             <div class="mb-6 md:mb-0 w-full md:w-auto">
                 <h3 class="text-lg font-semibold mb-2">Contact Me</h3>
-                <p class="mb-2">Email: <a href="mailto:zidanerizal17@gmail.com" class="hover:text-teal-400 transition-colors">zidanerizal17@gmail.com</a></p>
-                <p class="mb-2">Phone: <a href="tel:+6281529474830" class="hover:text-teal-400 transition-colors">+62 815 2947 4830</a></p>
-                <p class="mb-2">Lamongan, Jawa Timur, Indonesia</p>
+                <p class="mb-2">Email: <a target="_blank" href="mailto:zidanerizal17@gmail.com" class="hover:text-teal-400 transition-colors">zidanerizal17@gmail.com</a></p>
+                <p class="mb-2">Phone: <a target="_blank" href="tel:+6281529474830" class="hover:text-teal-400 transition-colors">+62 815 2947 4830</a></p>
+                <p class="mb-2"><a target="_blank" href="https://www.google.com/maps/place/Lamongan,+Lamongan+Regency,+East+Java/@-7.1228244,112.3735889,14z/data=!3m1!4b1!4m6!3m5!1s0x2e77f0d41da5eb91:0x4027a76e3531440!8m2!3d-7.1181109!4d112.4149811!16s%2Fg%2F121qgf44?entry=ttu" class="hover:text-teal-400 transition-colors">Lamongan, Jawa Timur, Indonesia</a></p>
             </div>
 
             <!-- Social Media Links -->
