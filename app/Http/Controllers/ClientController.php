@@ -42,6 +42,17 @@ class ClientController extends Controller
         ]);
     }
 
+    public function showProduct($id)
+    {
+        $product = Product::findOrFail($id);
+        return view('user/product-detail', compact('product'));
+    }
+
+    public function checkout()
+    {
+        return view('user.checkout');
+    }
+    
     public function promo()
     {
         return view('user.promo');
