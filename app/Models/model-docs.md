@@ -178,7 +178,6 @@ This document provides an overview of the database schema for the e-commerce app
 - `cart_id`: Foreign key referencing `carts`
 - `product_id`: Foreign key referencing `products`
 - `quantity`: Integer, quantity of the product in the cart
-- `price`: Decimal, price of the product in the cart
 
 **Relationships:**
 - `cart`: A cart item belongs to a cart (`belongsTo`)
