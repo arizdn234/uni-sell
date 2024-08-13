@@ -21,7 +21,7 @@ class ReviewsTableSeeder extends Seeder
                     'product_id' => $product->id,
                     'user_id' => User::inRandomOrder()->first()->id,
                     'rating' => rand(1, 5),
-                    'comment' => $faker->sentence,
+                    'comment' => $faker->text(300),
                 ]);
             }
         }
