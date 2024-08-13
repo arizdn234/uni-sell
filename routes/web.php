@@ -36,11 +36,15 @@ Route::middleware(['auth', 'verified', CheckAdmin::class])->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [ClientController::class, 'dashboard'])->name('user.dashboard');
+
+    Route::get('/product/{id}', [ClientController::class, 'showProduct'])->name('product.detail');
     
     Route::get('/cart', [CartItemController::class, 'cart'])->name('user.cart');
     Route::post('/cart/add', [CartItemController::class, 'store'])->name('cart.add');
     Route::post('/cart/update/{itemId}', [CartItemController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{itemId}', [CartItemController::class, 'destroy'])->name('cart.remove');
+    
+    Route::get('/checkout', [ClientController::class, 'checkout'])->name('checkout.page');
     
     Route::get('/promo', [ClientController::class, 'promo'])->name('promo.page');
     Route::get('/new', [ClientController::class, 'newArrivals'])->name('new.arrivals');
