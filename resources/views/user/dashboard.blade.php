@@ -145,10 +145,8 @@
             // Handle Add to Cart Button Click
             function setupAddToCartButtons() {
                 document.querySelectorAll('.add-to-cart').forEach(function (button) {
-                    console.log("Add to Cart button found:", button);
                     button.addEventListener('click', function () {
                         const productId = this.dataset.productId;
-                        console.log(`Add to cart clicked for product ID: ${productId}`);
 
                         fetch('/cart/add', {
                             method: 'POST',
@@ -167,7 +165,6 @@
                             }
                         })
                         .catch(error => {
-                            console.error('Error:', error);
                             showToast('Failed to add product to cart', 'error');
                         });
                     });
@@ -183,7 +180,7 @@
                         console.log("See detail button clicked");
 
                         const productId = this.dataset.productId;
-                        window.location.href = `/products/${productId}`;
+                        window.location.href = `/product/${productId}`;
                     });
                 });
             }
