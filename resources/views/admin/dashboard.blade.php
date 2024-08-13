@@ -14,6 +14,7 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        padding-top: 1.2em;
         text-fill-color: transparent;">
         Overview of your business metrics at a glance!
     </h1>
