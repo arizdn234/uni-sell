@@ -37,8 +37,8 @@ Route::middleware(['auth', 'verified', CheckAdmin::class])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [ClientController::class, 'dashboard'])->name('user.dashboard');
     
-    Route::get('/cart', [ClientController::class, 'cart'])->name('user.cart');
-    Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::get('/cart', [CartItemController::class, 'cart'])->name('user.cart');
+    Route::post('/cart/add', [CartItemController::class, 'store'])->name('cart.add');
     Route::post('/cart/update/{itemId}', [CartItemController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{itemId}', [CartItemController::class, 'destroy'])->name('cart.remove');
     
