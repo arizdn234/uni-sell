@@ -6,6 +6,7 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
@@ -134,59 +135,18 @@ class CartController extends Controller
 
         return redirect()->route('carts.index')->with('success', 'Cart deleted successfully.');
     }
-
-    public function addToCart(Request $request)
-    {
-        $request->validate([
-            'product_id' => 'required|integer|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-        ]);
-
-        $productId = $request->input('product_id');
-        $quantity = $request->input('quantity');
-        $userId = auth()->id(); 
-
-        try {
-            
-            $cart = Cart::firstOrCreate(['user_id' => $userId]);
-
-            
-            $cartItem = CartItem::where('cart_id', $cart->id)
-                                ->where('product_id', $productId)
-                                ->first();
-
-            if ($cartItem) {
-                
-                $cartItem->increment('quantity', $quantity);
-            } else {
-                
-                CartItem::create([
-                    'cart_id' => $cart->id,
-                    'product_id' => $productId,
-                    'quantity' => $quantity,
-                ]);
-            }
-
-            return response()->json(['success' => true, 'message' => 'Product added to cart']);
-        } catch (\Exception $e) {
-            
-            \Log::error('Failed to add product to cart', ['error' => $e->getMessage()]);
-            return response()->json(['success' => false, 'message' => 'Failed to add product to cart']);
-        }
-    }
-
+    
     public function updateCart(Request $request, $itemId)
     {
         $quantity = $request->input('quantity');
         
-        // Simulate cart update (you should replace this with your actual cart update logic)
         $cart = Session::get('cart', []);
+        \Log::info('Cart contents:', $cart);
         
         if (isset($cart[$itemId])) {
             $cart[$itemId]['quantity'] = $quantity;
             Session::put('cart', $cart);
 
-            // Calculate new totals (replace with your actual logic)
             $itemTotal = $cart[$itemId]['price'] * $quantity;
             $cartTotal = array_reduce($cart, function ($carry, $item) {
                 return $carry + ($item['price'] * $item['quantity']);
