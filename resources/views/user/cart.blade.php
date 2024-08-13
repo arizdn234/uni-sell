@@ -99,7 +99,10 @@
                                 <p class="pb-7 text-xl font-semibold text-gray-900 dark:text-gray-200">
                                     Total: <span id="cart-total">{{ number_format($total, 2, ',', '.') }}</span>
                                 </p>
-                                <a class="bg-teal-500 text-white py-2 px-4 rounded hover:bg-teal-600 transition mt-4">
+                                <a onclick="history.back()" class="mr-3 bg-amber-500 text-white py-2 px-4 rounded hover:bg-amber-600 transition mt-4 cursor-pointer">
+                                    Back
+                                </a>
+                                <a href="{{ route('checkout.page') }}" class="bg-teal-500 text-white py-2 px-4 rounded hover:bg-teal-600 transition mt-4">
                                     Proceed to Checkout
                                 </a>
                             </div>
@@ -197,7 +200,6 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
                     if (data.success) {
                         const row = document.querySelector(`tr[data-item-id="${itemId}"]`);
                         if (row) {
