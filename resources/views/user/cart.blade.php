@@ -1,4 +1,3 @@
-<!-- resources/views/user/cart.blade.php -->
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -23,6 +22,9 @@
                         <table class="min-w-full leading-normal">
                             <thead>
                                 <tr>
+                                    <th class="px-5 py-3 w-1 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
+                                        Select
+                                    </th>
                                     <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
                                         Product
                                     </th>
@@ -35,12 +37,19 @@
                                     <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
                                         Sub-total
                                     </th>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700"></th>
+                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
+                                        Action
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="cart-items">
                                 @foreach ($cart->items as $item)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700" data-item-id="{{ $item->id }}">
+                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
+                                            <div class="flex items-center">
+                                                <input type="checkbox" class="select-item" data-item-id="{{ $item->id }}">
+                                            </div>
+                                        </td>
                                         <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0">
@@ -58,7 +67,7 @@
                                                 <button class="text-gray-600 dark:text-gray-300 quantity-change" data-action="decrease">
                                                     <i class="fas fa-minus"></i>
                                                 </button>
-                                                <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" class="w-16 border rounded py-1 text-center quantity-input mx-2">
+                                                <input type="" name="quantity" value="{{ $item->quantity }}" min="1" class="w-12 border rounded py-1 text-center quantity-input mx-2" readonly>
                                                 <button class="text-gray-600 dark:text-gray-300 quantity-change" data-action="increase">
                                                     <i class="fas fa-plus"></i>
                                                 </button>
@@ -66,17 +75,17 @@
                                         </td>
                                         <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
                                             <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap">
-                                                Rp {{ number_format($item->price, 2, ',', '.') }}
+                                                Rp {{ number_format($item->product->price, 2, ',', '.') }}
                                             </p>
                                         </td>
                                         <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
                                             <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap item-total">
-                                                Rp {{ number_format($item->price * $item->quantity, 2, ',', '.') }}
+                                                Rp {{ number_format($item->product->price * $item->quantity, 2, ',', '.') }}
                                             </p>
                                         </td>
                                         <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
-                                            <button class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-600 remove-item">
-                                                Remove
+                                            <button class="text-red-600 hover:text-red-900 dark:text-red-600 dark:hover:text-red-900 remove-item">
+                                                <i class="fas fa-trash"></i>
                                             </button>
                                         </td>
                                     </tr>
@@ -118,8 +127,8 @@
 
             // Handle quantity change buttons
             cartItems.addEventListener('click', function (event) {
-                if (event.target.classList.contains('quantity-change')) {
-                    const button = event.target;
+                if (event.target.classList.contains('quantity-change') || event.target.closest('.quantity-change')) {
+                    const button = event.target.closest('.quantity-change');
                     const row = button.closest('tr');
                     const itemId = row.dataset.itemId;
                     const quantityInput = row.querySelector('.quantity-input');
@@ -137,9 +146,16 @@
                 }
             });
 
+            // Handle item selection
+            cartItems.addEventListener('change', function (event) {
+                if (event.target.classList.contains('select-item')) {
+                    updateCartTotal();
+                }
+            });
+
             // Handle remove item button
             cartItems.addEventListener('click', function (event) {
-                if (event.target.classList.contains('remove-item')) {
+                if (event.target.classList.contains('remove-item') || event.target.closest('.remove-item')) {
                     const row = event.target.closest('tr');
                     const itemId = row.dataset.itemId;
 
@@ -155,7 +171,7 @@
                         .then(data => {
                             if (data.success) {
                                 row.remove();
-                                document.getElementById('cart-total').textContent = `${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.cart_total).replace(/\D00(?=\D*$)/, '')}`;
+                                updateCartTotal();
                                 showToast(data.message);
                             } else {
                                 showToast(data.message, 'error');
@@ -181,10 +197,13 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    console.log(data);
                     if (data.success) {
                         const row = document.querySelector(`tr[data-item-id="${itemId}"]`);
-                        row.querySelector('.item-total').textContent = `Rp ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.item_total).replace(/\D00(?=\D*$)/, '')}`;
-                        document.getElementById('cart-total').textContent = `${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.cart_total).replace(/\D00(?=\D*$)/, '')}`;
+                        if (row) {
+                            row.querySelector('.item-total').textContent = `${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.item_total).replace(/\D00(?=\D*$)/, ',00')}`;
+                        }
+                        updateCartTotal();
                         showToast(data.message);
                     } else {
                         showToast(data.message, 'error');
@@ -194,6 +213,18 @@
                     console.error('Error:', error);
                     showToast('An error occurred while updating the item.', 'error');
                 });
+            }
+
+            // Function to update total based on selected items
+            function updateCartTotal() {
+                let total = 0;
+                const selectedItems = document.querySelectorAll('.select-item:checked');
+                selectedItems.forEach(item => {
+                    const row = item.closest('tr');
+                    const itemTotal = parseFloat(row.querySelector('.item-total').textContent.replace(/[^\d,-]/g, '').replace(',', '.'));
+                    total += itemTotal;
+                });
+                document.getElementById('cart-total').textContent = `${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(total).replace(/\D00(?=\D*$)/, ',00')}`;
             }
 
             // Function to show toast
