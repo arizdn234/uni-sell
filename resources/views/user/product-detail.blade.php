@@ -47,38 +47,60 @@
                         </div>
                     </div>
                     
-                    <!-- Product Reviews -->
-                    <div class="mt-8">
-                        <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Reviews</h2>
-                        @if ($product->reviews->isEmpty())
-                            <p class="text-gray-600 dark:text-gray-400">No reviews yet.</p>
-                        @else
-                            <div class="mt-4 space-y-4">
-                                @foreach ($product->reviews as $review)
-                                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
-                                        <div class="flex items-center mb-2">
-                                            <div class="font-semibold text-gray-900 dark:text-gray-100">
-                                                {{ $review->user->name }}
+                    <!-- Reviews and Related Products -->
+                    <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <!-- Product Reviews -->
+                        <div>
+                            <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Reviews</h2>
+                            @if ($product->reviews->isEmpty())
+                                <p class="text-gray-600 dark:text-gray-400">No reviews yet.</p>
+                            @else
+                                <div class="mt-4 space-y-4">
+                                    @foreach ($product->reviews as $review)
+                                        <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
+                                            <div class="flex items-center mb-2">
+                                                <div class="font-semibold text-gray-900 dark:text-gray-100">
+                                                    {{ $review->user->name }}
+                                                </div>
+                                                <div class="ml-2 text-gray-600 dark:text-gray-400 text-sm">
+                                                    {{ $review->created_at->diffForHumans() }}
+                                                </div>
                                             </div>
-                                            <div class="ml-2 text-gray-600 dark:text-gray-400 text-sm">
-                                                {{ $review->created_at->diffForHumans() }}
+                                            <p class="text-gray-800 dark:text-gray-200">{{ $review->comment }}</p>
+                                            <div class="mt-2">
+                                                <span class="text-yellow-500">
+                                                    @for ($i = 1; $i <= $review->rating; $i++)
+                                                        <i class="fas fa-star"></i>
+                                                    @endfor
+                                                    @for ($i = $review->rating + 1; $i <= 5; $i++)
+                                                        <i class="fas fa-star text-gray-300"></i>
+                                                    @endfor
+                                                </span>
                                             </div>
                                         </div>
-                                        <p class="text-gray-800 dark:text-gray-200">{{ $review->comment }}</p>
-                                        <div class="mt-2">
-                                            <span class="text-yellow-500">
-                                                @for ($i = 1; $i <= $review->rating; $i++)
-                                                    <i class="fas fa-star"></i>
-                                                @endfor
-                                                @for ($i = $review->rating + 1; $i <= 5; $i++)
-                                                    <i class="fas fa-star text-gray-300"></i>
-                                                @endfor
-                                            </span>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Related Products -->
+                        <div>
+                            <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Related Products</h2>
+                            <div class="mt-4 space-y-4">
+                                @foreach ($relatedProducts as $relatedProduct)
+                                    <div class="flex items-center border border-gray-200 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
+                                        <img src="{{ $relatedProduct->image_url }}" alt="{{ $relatedProduct->name }}" class="w-16 h-16 object-cover rounded-lg">
+                                        <div class="ml-4">
+                                            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $relatedProduct->name }}</h3>
+                                            <p class="text-md font-bold text-gray-900 dark:text-gray-100">
+                                                Rp {{ number_format($relatedProduct->price, 2, ',', '.') }}
+                                            </p>
+                                            <a href="{{ route('product.detail', $relatedProduct->id) }}" class="text-teal-500 hover:underline">View Details</a>
                                         </div>
                                     </div>
                                 @endforeach
                             </div>
-                        @endif
+                        </div>
                     </div>
                 </div>
             </div>

@@ -45,7 +45,13 @@ class ClientController extends Controller
     public function showProduct($id)
     {
         $product = Product::findOrFail($id);
-        return view('user/product-detail', compact('product'));
+
+        $relatedProducts = Product::where('category_id', $product->category_id)
+                              ->where('id', '!=', $product->id)
+                              ->take(4)
+                              ->get();
+
+        return view('user/product-detail', compact('product', 'relatedProducts'));
     }
 
     public function checkout()
