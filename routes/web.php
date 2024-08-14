@@ -38,6 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [ClientController::class, 'dashboard'])->name('user.dashboard');
 
     Route::get('/product/{id}', [ClientController::class, 'showProduct'])->name('product.detail');
+    Route::get('/product/{id}/reviews', [ClientController::class, 'loadMoreReviews'])->name('product.reviews');
     
     Route::get('/cart', [CartItemController::class, 'cart'])->name('user.cart');
     Route::post('/cart/add', [CartItemController::class, 'store'])->name('cart.add');
