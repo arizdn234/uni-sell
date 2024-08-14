@@ -20,6 +20,21 @@
                         <!-- Product Information -->
                         <div class="w-full lg:w-1/2 p-4">
                             <h1 class="text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ $product->name }}</h1>
+
+                            <!-- Menambahkan Rata-rata Rating -->
+                            @if ($product->reviews->isNotEmpty())
+                            <div class="mt-2">
+                                <span class="text-yellow-500">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <i class="fas fa-star{{ $i <= floor($averageRating) ? '' : ' text-gray-300' }}"></i>
+                                    @endfor
+                                </span>
+                                <span class="text-gray-600 dark:text-gray-400 ml-2">
+                                    {{ number_format($averageRating, 1) }} / 5 dari {{ $product->reviews->count() }} ulasan
+                                </span>
+                            </div>
+                        @endif
+                            
                             <p class="text-gray-600 dark:text-gray-400 mt-2">{{ $product->description }}</p>
                             <p class="text-xl font-bold text-gray-900 dark:text-gray-100 mt-4">
                                 Rp {{ number_format($product->price, 2, ',', '.') }}
