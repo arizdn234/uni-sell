@@ -3,6 +3,21 @@
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Product Details') }}
         </h2>
+        <style>
+            #toast-container {
+                padding: 1rem;
+                border-radius: 0.375rem;
+                visibility: hidden;
+                opacity: 0;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+            }
+
+            #toast-container.show {
+                visibility: visible;
+                opacity: 1;
+            }
+
+        </style>
     </x-slot>
 
     <div class="py-12">
@@ -67,11 +82,11 @@
                         <!-- Product Reviews -->
                         <div>
                             <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Reviews</h2>
-                            @if ($product->reviews->isEmpty())
+                            @if ($totalReviews == 0)
                                 <p class="text-gray-600 dark:text-gray-400">No reviews yet.</p>
                             @else
-                                <div class="mt-4 space-y-4">
-                                    @foreach ($product->reviews as $review)
+                                <div class="mt-4 space-y-4" id="reviews-container">
+                                    @foreach ($reviews as $review)
                                         <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
                                             <div class="flex items-center mb-2">
                                                 <div class="font-semibold text-gray-900 dark:text-gray-100">
@@ -95,6 +110,12 @@
                                         </div>
                                     @endforeach
                                 </div>
+
+                                @if ($totalReviews > 5)
+                                    <button id="load-more-reviews" class="bg-teal-500 text-white py-2 px-4 rounded hover:bg-teal-600 transition mt-4">
+                                        Load More Reviews
+                                    </button>
+                                @endif
                             @endif
                         </div>
 
@@ -193,6 +214,48 @@
                         toastContainer.classList.remove('show');
                     }
                 }, 3000);
+            }
+
+            let currentPage = 1;
+            const reviewsContainer = document.getElementById('reviews-container');
+            const loadMoreButton = document.getElementById('load-more-reviews');
+
+            if (loadMoreButton) {
+                loadMoreButton.addEventListener('click', function () {
+                    currentPage++;
+
+                    fetch(`/product/{{ $product->id }}/reviews?page=${currentPage}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data);
+                            
+                            data.reviews.forEach(review => {
+                                const reviewElement = document.createElement('div');
+                                reviewElement.classList.add('border', 'border-gray-200', 'rounded-lg', 'p-4', 'bg-gray-50', 'dark:bg-gray-700');
+                                reviewElement.innerHTML = `
+                                    <div class="flex items-center mb-2">
+                                        <div class="font-semibold text-gray-900 dark:text-gray-100">${review.user.name}</div>
+                                        <div class="ml-2 text-gray-600 dark:text-gray-400 text-sm">${review.created_at}</div>
+                                    </div>
+                                    <p class="text-gray-800 dark:text-gray-200">${review.comment}</p>
+                                    <div class="mt-2">
+                                        <span class="text-yellow-500">
+                                            ${'<i class="fas fa-star"></i>'.repeat(review.rating)}
+                                            ${'<i class="fas fa-star text-gray-300"></i>'.repeat(5 - review.rating)}
+                                        </span>
+                                    </div>
+                                `;
+                                reviewsContainer.appendChild(reviewElement);
+                            });
+
+                            if (data.reviews.length < 5) {
+                                loadMoreButton.remove();
+                            }
+                        })
+                        .catch(error => {
+                            showToast('Failed to load more reviews', 'error');
+                        });
+                });
             }
         });
     </script>
