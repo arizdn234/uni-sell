@@ -44,7 +44,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/cart/update/{itemId}', [CartItemController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{itemId}', [CartItemController::class, 'destroy'])->name('cart.remove');
     
-    Route::get('/checkout', [ClientController::class, 'checkout'])->name('checkout.page');
+    Route::post('/checkout', [ClientController::class, 'checkout'])->name('checkout.page');
+    Route::get('/checkout', [ClientController::class, 'showCheckout'])->name('checkout.show');
     
     Route::get('/promo', [ClientController::class, 'promo'])->name('promo.page');
     Route::get('/new', [ClientController::class, 'newArrivals'])->name('new.arrivals');
