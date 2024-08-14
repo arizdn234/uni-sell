@@ -1,3 +1,5 @@
+{{-- resources/views/cart/index.blade.php --}}
+
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -14,102 +16,105 @@
             </div>
 
             <!-- Shopping Cart Items -->
-            <div class="mt-8 bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    @if (!isset($cart) || $cart->items->isEmpty())
-                        <p class="text-gray-600 dark:text-gray-400">Your cart is currently empty.</p>
-                    @else
-                        <table class="min-w-full leading-normal">
-                            <thead>
-                                <tr>
-                                    <th class="px-5 py-3 w-1 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
-                                        Select
-                                    </th>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
-                                        Product
-                                    </th>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
-                                        Quantity
-                                    </th>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
-                                        Price
-                                    </th>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
-                                        Sub-total
-                                    </th>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
-                                        Action
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="cart-items">
-                                @foreach ($cart->items as $item)
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700" data-item-id="{{ $item->id }}">
-                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
-                                            <div class="flex items-center">
-                                                <input type="checkbox" class="select-item" data-item-id="{{ $item->id }}">
-                                            </div>
-                                        </td>
-                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0">
-                                                    <img class="w-8 h-8 rounded-full object-cover" src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}">
-                                                </div>
-                                                <div class="ml-3">
-                                                    <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap">
-                                                        {{ $item->product->name }}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
-                                            <div class="flex items-center">
-                                                <button class="text-gray-600 dark:text-gray-300 quantity-change" data-action="decrease">
-                                                    <i class="fas fa-minus"></i>
-                                                </button>
-                                                <input type="" name="quantity" value="{{ $item->quantity }}" min="1" class="w-12 border rounded py-1 text-center quantity-input mx-2" readonly>
-                                                <button class="text-gray-600 dark:text-gray-300 quantity-change" data-action="increase">
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
-                                            <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap">
-                                                Rp {{ number_format($item->product->price, 2, ',', '.') }}
-                                            </p>
-                                        </td>
-                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
-                                            <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap item-total">
-                                                Rp {{ number_format($item->product->price * $item->quantity, 2, ',', '.') }}
-                                            </p>
-                                        </td>
-                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
-                                            <button class="text-red-600 hover:text-red-900 dark:text-red-600 dark:hover:text-red-900 remove-item">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
+            <form action="{{ route('checkout.page') }}" method="POST">
+                @csrf
+                <div class="mt-8 bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        @if (!isset($cart) || $cart->items->isEmpty())
+                            <p class="text-gray-600 dark:text-gray-400">Your cart is currently empty.</p>
+                        @else
+                            <table class="min-w-full leading-normal">
+                                <thead>
+                                    <tr>
+                                        <th class="px-5 py-3 w-1 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
+                                            Select
+                                        </th>
+                                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
+                                            Product
+                                        </th>
+                                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
+                                            Quantity
+                                        </th>
+                                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
+                                            Price
+                                        </th>
+                                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
+                                            Sub-total
+                                        </th>
+                                        <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
+                                            Action
+                                        </th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody id="cart-items">
+                                    @foreach ($cart->items as $item)
+                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700" data-item-id="{{ $item->id }}">
+                                            <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
+                                                <div class="flex items-center">
+                                                    <input type="checkbox" name="selected_items[]" value="{{ $item->id }}" class="select-item" data-item-id="{{ $item->id }}">
+                                                </div>
+                                            </td>
+                                            <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0">
+                                                        <img class="w-8 h-8 rounded-full object-cover" src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}">
+                                                    </div>
+                                                    <div class="ml-3">
+                                                        <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap">
+                                                            {{ $item->product->name }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
+                                                <div class="flex items-center">
+                                                    <button type="button" class="text-gray-600 dark:text-gray-300 quantity-change" data-action="decrease">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                    <input type="number" name="quantities[{{ $item->id }}]" value="{{ $item->quantity }}" min="1" class="w-12 border rounded py-1 text-center quantity-input mx-2" readonly>
+                                                    <button type="button" class="text-gray-600 dark:text-gray-300 quantity-change" data-action="increase">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
+                                                <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap">
+                                                    Rp {{ number_format($item->product->price, 2, ',', '.') }}
+                                                </p>
+                                            </td>
+                                            <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
+                                                <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap item-total">
+                                                    Rp {{ number_format($item->product->price * $item->quantity, 2, ',', '.') }}
+                                                </p>
+                                            </td>
+                                            <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
+                                                <button type="button" class="text-red-600 hover:text-red-900 dark:text-red-600 dark:hover:text-red-900 remove-item">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
 
-                        <!-- Total Price and Checkout -->
-                        <div class="flex justify-end mt-6">
-                            <div class="text-right">
-                                <p class="pb-7 text-xl font-semibold text-gray-900 dark:text-gray-200">
-                                    Total: <span id="cart-total">{{ number_format($total, 2, ',', '.') }}</span>
-                                </p>
-                                <a onclick="history.back()" class="mr-3 bg-amber-500 text-white py-2 px-4 rounded hover:bg-amber-600 transition mt-4 cursor-pointer">
-                                    Back
-                                </a>
-                                <a href="{{ route('checkout.page') }}" class="bg-teal-500 text-white py-2 px-4 rounded hover:bg-teal-600 transition mt-4">
-                                    Proceed to Checkout
-                                </a>
+                            <!-- Total Price and Checkout -->
+                            <div class="flex justify-end mt-6">
+                                <div class="text-right">
+                                    <p class="pb-7 text-xl font-semibold text-gray-900 dark:text-gray-200">
+                                        Total: <span id="cart-total">{{ number_format($total, 2, ',', '.') }}</span>
+                                    </p>
+                                    <a onclick="history.back()" class="mr-3 bg-amber-500 text-white py-2 px-4 rounded hover:bg-amber-600 transition mt-4 cursor-pointer">
+                                        Back
+                                    </a>
+                                    <button type="submit" class="bg-teal-500 text-white py-2 px-4 rounded hover:bg-teal-600 transition mt-4">
+                                        Proceed to Checkout
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    @endif
+                        @endif
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -117,17 +122,6 @@
         document.addEventListener('DOMContentLoaded', function () {
             const cartItems = document.getElementById('cart-items');
             
-            // Handle quantity input change
-            cartItems.addEventListener('input', function (event) {
-                if (event.target.classList.contains('quantity-input')) {
-                    const row = event.target.closest('tr');
-                    const itemId = row.dataset.itemId;
-                    const quantity = parseInt(event.target.value);
-
-                    updateCartItem(itemId, quantity);
-                }
-            });
-
             // Handle quantity change buttons
             cartItems.addEventListener('click', function (event) {
                 if (event.target.classList.contains('quantity-change') || event.target.closest('.quantity-change')) {
