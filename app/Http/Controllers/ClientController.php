@@ -51,12 +51,48 @@ class ClientController extends Controller
                               ->take(4)
                               ->get();
 
-        return view('user/product-detail', compact('product', 'relatedProducts'));
+        $product = Product::with('reviews.user', 'category')->findOrFail($id);
+        $averageRating = $product->reviews->avg('rating');
+                              
+        return view('user/product-detail', compact('product', 'averageRating', 'relatedProducts'));
     }
 
-    public function checkout()
+    public function checkout(Request $request)
     {
-        return view('user.checkout');
+        $selectedItems = $request->input('selected_items', []);
+
+        if (empty($selectedItems)) {
+            return redirect()->back()->with('error', 'Please select at least one item to proceed to checkout.');
+        }
+
+        $cart = Cart::with('items.product')->find(session('cart_id'));
+
+        if (!$cart) {
+            return redirect()->route('user.cart')->with('error', 'Your cart is empty.');
+        }
+
+        $selectedItems = $cart->items->whereIn('id', $selectedItems);
+
+        $total = $selectedItems->sum(function ($item) {
+            return $item->product->price * $item->quantity;
+        });
+
+        return view('user.checkout', compact('selectedItems', 'total'));
+    }
+
+    public function showCheckout()
+    {
+        $cart = Cart::with('items.product')->find(session('cart_id'));
+
+        if (!$cart || $cart->items->isEmpty()) {
+            return redirect()->route('user.cart')->with('error', 'Your cart is empty.');
+        }
+
+        $total = $cart->items->sum(function ($item) {
+            return $item->product->price * $item->quantity;
+        });
+
+        return view('user.checkout', ['selectedItems' => $cart->items, 'total' => $total]);
     }
     
     public function promo()
