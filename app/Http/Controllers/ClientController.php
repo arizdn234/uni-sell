@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Review;
 use Illuminate\Support\Facades\DB;
 
 class ClientController extends Controller
@@ -44,17 +45,41 @@ class ClientController extends Controller
 
     public function showProduct($id)
     {
-        $product = Product::findOrFail($id);
+        $product = Product::with('reviews.user', 'category')->findOrFail($id);
 
         $relatedProducts = Product::where('category_id', $product->category_id)
-                              ->where('id', '!=', $product->id)
-                              ->take(4)
-                              ->get();
+                                ->where('id', '!=', $product->id)
+                                ->take(4)
+                                ->get();
 
-        $product = Product::with('reviews.user', 'category')->findOrFail($id);
         $averageRating = $product->reviews->avg('rating');
-                              
-        return view('user/product-detail', compact('product', 'averageRating', 'relatedProducts'));
+        $reviews = $product->reviews()->take(5)->get();
+        $totalReviews = $product->reviews->count();
+
+        return view('user.product-detail', compact('product', 'averageRating', 'relatedProducts', 'reviews', 'totalReviews'));
+    }
+
+    public function loadMoreReviews($id)
+    {
+        $page = request()->get('page', 1);
+        $reviews = Review::where('product_id', $id)
+                        ->with('user')
+                        ->skip(($page - 1) * 5)
+                        ->take(5)
+                        ->get();
+
+        return response()->json([
+            'reviews' => $reviews->map(function($review) {
+                return [
+                    'user' => [
+                        'name' => $review->user->name,
+                    ],
+                    'created_at' => $review->created_at->diffForHumans(),
+                    'comment' => $review->comment,
+                    'rating' => $review->rating,
+                ];
+            })
+        ]);
     }
 
     public function checkout(Request $request)
