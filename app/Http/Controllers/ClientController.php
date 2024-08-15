@@ -82,42 +82,52 @@ class ClientController extends Controller
         ]);
     }
 
-    public function checkout(Request $request)
+    public function processCheckout(Request $request)
     {
-        $selectedItems = $request->input('selected_items', []);
+        $selectedItemIds = $request->input('selected_items', []);
 
-        if (empty($selectedItems)) {
-            return redirect()->back()->with('error', 'Please select at least one item to proceed to checkout.');
+        $order = auth()->user()->orders()->create([
+            'shipping_address' => $request->input('shipping_address'), 
+            'total_amount' => $request->input('total_amount'), 
+            'address' => $request->input('address'),
+            'payment_method' => $request->input('payment_method'),
+        ]);
+
+        foreach (auth()->user()->cart->items()->whereIn('id', $selectedItemIds)->get() as $item) {
+            $order->items()->create([
+                'product_id' => $item->product_id,
+                'quantity' => $item->quantity,
+                'price' => $item->product->price,
+            ]);
+
+            $item->delete();
         }
 
-        $cart = Cart::with('items.product')->find(session('cart_id'));
-
-        if (!$cart) {
-            return redirect()->route('user.cart')->with('error', 'Your cart is empty.');
-        }
-
-        $selectedItems = $cart->items->whereIn('id', $selectedItems);
-
-        $total = $selectedItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
-        });
-
-        return view('user.checkout', compact('selectedItems', 'total'));
+        return redirect()->route('user.cart')
+                        ->with('success', 'Order placed successfully!');
     }
 
-    public function showCheckout()
+    public function checkoutPage(Request $request)
     {
-        $cart = Cart::with('items.product')->find(session('cart_id'));
+        $selectedItems = $request->input('selected_items', []);
+        $quantities = $request->input('quantities', []);
 
-        if (!$cart || $cart->items->isEmpty()) {
-            return redirect()->route('user.cart')->with('error', 'Your cart is empty.');
+        $cartItems = collect();
+        $total = 0;
+
+        foreach ($selectedItems as $itemId) {
+            $item = CartItem::find($itemId);
+
+            if ($item) {
+                $quantity = $quantities[$itemId] ?? 1;
+                $item->quantity = $quantity;
+                $item->subtotal = $item->product->price * $quantity;
+                $cartItems->push($item);
+                $total += $item->subtotal;
+            }
         }
 
-        $total = $cart->items->sum(function ($item) {
-            return $item->product->price * $item->quantity;
-        });
-
-        return view('user.checkout', ['selectedItems' => $cart->items, 'total' => $total]);
+        return view('user.checkout', compact('cartItems', 'total'));
     }
     
     public function promo()
