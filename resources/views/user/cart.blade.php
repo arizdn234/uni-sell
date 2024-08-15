@@ -71,7 +71,7 @@
                                                     <button type="button" class="text-gray-600 dark:text-gray-300 quantity-change" data-action="decrease">
                                                         <i class="fas fa-minus"></i>
                                                     </button>
-                                                    <input type="number" name="quantities[{{ $item->id }}]" value="{{ $item->quantity }}" min="1" class="w-12 border rounded py-1 text-center quantity-input mx-2" readonly>
+                                                    <input name="quantities[{{ $item->id }}]" value="{{ $item->quantity }}" min="1" class="w-12 border rounded py-1 text-center quantity-input mx-2" readonly>
                                                     <button type="button" class="text-gray-600 dark:text-gray-300 quantity-change" data-action="increase">
                                                         <i class="fas fa-plus"></i>
                                                     </button>
@@ -103,9 +103,9 @@
                                     <p class="pb-7 text-xl font-semibold text-gray-900 dark:text-gray-200">
                                         Total: <span id="cart-total">{{ number_format($total, 2, ',', '.') }}</span>
                                     </p>
-                                    <a onclick="history.back()" class="mr-3 bg-amber-500 text-white py-2 px-4 rounded hover:bg-amber-600 transition mt-4 cursor-pointer">
+                                    <button onclick="history.back()" class="mr-1 bg-amber-500 text-white py-2 px-4 rounded hover:bg-amber-600 transition mt-4">
                                         Back
-                                    </a>
+                                    </button>
                                     <button type="submit" class="bg-teal-500 text-white py-2 px-4 rounded hover:bg-teal-600 transition mt-4">
                                         Proceed to Checkout
                                     </button>
