@@ -1,5 +1,3 @@
-{{-- resources/views/checkout/index.blade.php --}}
-
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -11,85 +9,90 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    {{ __("Review your selected items and proceed to payment.") }}
-                </div>
-            </div>
+                    <form action="{{ route('checkout.process') }}" method="POST">
+                        @csrf
 
-            <!-- Selected Items for Checkout -->
-            <div class="mt-8 bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    @if ($selectedItems->isEmpty())
-                        <p class="text-gray-600 dark:text-gray-400">No items selected for checkout.</p>
-                    @else
-                        <table class="min-w-full leading-normal">
-                            <thead>
-                                <tr>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
-                                        Product
-                                    </th>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
-                                        Quantity
-                                    </th>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
-                                        Price
-                                    </th>
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 dark:bg-gray-700 text-left text-xs font-semibold text-gray-600 dark:text-gray-200 uppercase tracking-wider">
-                                        Sub-total
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($selectedItems as $item)
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0">
-                                                    <img class="w-8 h-8 rounded-full object-cover" src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}">
-                                                </div>
-                                                <div class="ml-3">
-                                                    <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap">
-                                                        {{ $item->product->name }}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
-                                            <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap">
-                                                {{ $item->quantity }}
-                                            </p>
-                                        </td>
-                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
-                                            <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap">
-                                                Rp {{ number_format($item->product->price, 2, ',', '.') }}
-                                            </p>
-                                        </td>
-                                        <td class="px-5 py-5 border-b border-gray-200 bg-white dark:bg-gray-800 text-sm">
-                                            <p class="text-gray-900 dark:text-gray-200 whitespace-no-wrap">
-                                                Rp {{ number_format($item->product->price * $item->quantity, 2, ',', '.') }}
-                                            </p>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                        <!-- Display Cart Items -->
+                        <h3 class="text-2xl font-bold mb-4">Order Summary</h3>
+                        @foreach($cartItems as $item)
+                            <div class="mb-4">
+                                <input class="hidden" type="checkbox" name="selected_items[]" value="{{ $item->id }}" checked>
+                                <p>{{ $item->product->name }} x {{ $item->quantity }} item.</p>
+                                <p class="text-2l font-bold text-emerald-300">Rp. {{ number_format($item->product->price * $item->quantity, 2, ',', '.') }}</p>
+                            </div>
+
+                            
+                        @endforeach
 
                         <!-- Total Price -->
-                        <div class="flex justify-end mt-6">
-                            <div class="text-right">
-                                <p class="pb-7 text-xl font-semibold text-gray-900 dark:text-gray-200">
-                                    Total: Rp {{ number_format($total, 2, ',', '.') }}
-                                </p>
-                                <a href="{{ route('cart.index') }}" class="mr-3 bg-amber-500 text-white py-2 px-4 rounded hover:bg-amber-600 transition mt-4">
-                                    Back to Cart
-                                </a>
-                                <a href="{{ route('payment') }}" class="bg-teal-500 text-white py-2 px-4 rounded hover:bg-teal-600 transition mt-4">
-                                    Proceed to Payment
-                                </a>
-                            </div>
+                        <h4>Total: 
+                            <span class="text-2l font-bold text-emerald-300">
+                                Rp. {{ number_format($cartItems->sum(fn($item) => $item->product->price * $item->quantity), 2, ',', '.') }}
+                            </span>
+                        </h4>
+
+                        <!-- Address -->
+                        <div class="mt-4">
+                            <label for="shipping_address" class="block text-gray-700 dark:text-gray-100">Address</label>
+                            <textarea name="shipping_address" id="shipping_address" rows="3" class="rounded form-input mt-1 block w-full bg-gray-200 dark:bg-gray-700 dark:text-gray-300 border-none" required></textarea>
                         </div>
-                    @endif
+
+                        <!-- Shipping Method -->
+                        <div class="mt-4">
+                            <label for="shipping_method" class="block text-sm font-medium text-gray-300">Shipping Method</label>
+                            <select id="shipping_method" name="shipping_method" class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-gray-300">
+                                <option value="standard">Standard</option>
+                                <option value="express">Express</option>
+                            </select>
+                        </div>
+
+                        <!-- Payment Method -->
+                        <div class="mt-4">
+                            <label for="payment_method" class="block text-gray-700 dark:text-gray-100">Payment Method</label>
+                            <select name="payment_method" id="payment_method" class="rounded form-select mt-1 block w-full bg-gray-200 dark:bg-gray-700 dark:text-gray-300 border-none" required>
+                                <option value="credit_card">Credit Card</option>
+                                <option value="paypal">PayPal</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                            </select>
+                        </div>
+
+                        <!-- Track number -->
+                        <input type="hidden" name="tracking_number" id="tracking_number" class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-gray-300" required>
+
+                        <!-- Total Amount -->
+                        <input type="hidden" name="total_amount" id="total_amount" value="{{ number_format($cartItems->sum(fn($item) => $item->product->price * $item->quantity), 2, '.', ',') }}" class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-gray-300" required>
+
+                        <!-- Place Order Button -->
+                        <div class="mt-6">
+                            <a href="{{ route('user.cart') }}">
+                                <button type="button" class="mr-1 bg-amber-500 text-white py-2 px-4 rounded hover:bg-amber-600 transition">Back to Cart</button>
+                            </a>
+                            <button type="submit" class="bg-teal-500 text-white py-2 px-4 rounded hover:bg-teal-600 transition">
+                                Place Order
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function generateTrackingNumber() {
+                var timestamp = new Date().getTime();
+
+                var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789';
+                var randomString = '';
+                for (var i = 0; i < 6; i++) {
+                    randomString += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+
+                return 'TRK-' + timestamp + '-' + randomString;
+            }
+            var trackingNumber = generateTrackingNumber();
+            document.getElementById('tracking_number').value = trackingNumber;
+        });
+    </script>
+    
 </x-app-layout>
